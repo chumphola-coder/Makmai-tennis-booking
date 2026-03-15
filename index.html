@@ -33,6 +33,7 @@
             opacity: 1 !important;
         }
 
+        /* รูปแบบวันที่เกินกำหนด 7 วัน ของฟอร์มจอง */
         .flatpickr-day.future-restricted-blue.flatpickr-disabled {
             color: #2563eb !important;
             background-color: #eff6ff !important;
@@ -40,6 +41,14 @@
             cursor: not-allowed;
             opacity: 0.8 !important;
             border-color: transparent !important;
+        }
+
+        /* รูปแบบวันที่ถูกล็อกตายตัวสำหรับโหมด Guest ให้เป็นสีเทาชัดเจน */
+        .flatpickr-day.flatpickr-disabled:not(.future-restricted-blue) {
+            color: #94a3b8 !important;
+            background-color: #f8fafc !important;
+            cursor: not-allowed;
+            opacity: 0.7 !important;
         }
 
         .modal-active { display: flex !important; animation: fadeIn 0.2s ease-out; }
@@ -96,7 +105,7 @@
     <input type="file" id="restoreInput" class="hidden" accept=".json" onchange="window.importBackupFile(event)">
 
     <div class="max-w-[1400px] mx-auto w-full">
-        <!-- Header (ปรับให้ Responsive วางตรงกลางบนมือถือ) -->
+        <!-- Header -->
         <header class="flex flex-col md:flex-row justify-between items-center gap-3 md:gap-4 mb-4 md:mb-6 no-print text-center md:text-left">
             <!-- Left Side: Title -->
             <div class="flex-1 w-full flex flex-col items-center md:items-start">
@@ -1016,6 +1025,10 @@
             const nextWeekEnd = new Date(currentWeekStart);
             nextWeekEnd.setDate(nextWeekEnd.getDate() + 13);
 
+            // บังคับแปลงเป็น String Format (Y-m-d) เพื่อป้องกันบั๊ก Timezone ของ Flatpickr
+            const minDateStr = `${currentWeekStart.getFullYear()}-${String(currentWeekStart.getMonth()+1).padStart(2,'0')}-${String(currentWeekStart.getDate()).padStart(2,'0')}`;
+            const maxDateStr = `${nextWeekEnd.getFullYear()}-${String(nextWeekEnd.getMonth()+1).padStart(2,'0')}-${String(nextWeekEnd.getDate()).padStart(2,'0')}`;
+
             if (window.isLoggedIn) {
                 loginBtn.innerHTML = '🚪 ออกจากระบบ';
                 loginBtn.classList.replace('bg-slate-800', 'bg-red-600');
@@ -1045,8 +1058,9 @@
                 adminBtn.innerHTML = '<svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg> ปลดล็อกผู้ดูแล';
 
                 if (scheduleFp) {
-                    scheduleFp.set('minDate', currentWeekStart);
-                    scheduleFp.set('maxDate', nextWeekEnd);
+                    // ใช้ตัวแปร String แทน Object วันที่ดิบ เพื่อไม่ให้บั๊ก
+                    scheduleFp.set('minDate', minDateStr);
+                    scheduleFp.set('maxDate', maxDateStr);
                 }
                 
                 const currentRealWeekStr = getWeekString(todayStr);
@@ -1526,6 +1540,10 @@
             const nextWeekEndInit = new Date(currentWeekStartInit);
             nextWeekEndInit.setDate(nextWeekEndInit.getDate() + 13);
             
+            // Format วันที่ให้เป็นแบบ Y-m-d เป๊ะๆ เพื่อป้องกันบั๊ก Timezone ในตัวปฏิทินของแขก
+            const scheduleMinDateStr = `${currentWeekStartInit.getFullYear()}-${String(currentWeekStartInit.getMonth()+1).padStart(2,'0')}-${String(currentWeekStartInit.getDate()).padStart(2,'0')}`;
+            const scheduleMaxDateStr = `${nextWeekEndInit.getFullYear()}-${String(nextWeekEndInit.getMonth()+1).padStart(2,'0')}-${String(nextWeekEndInit.getDate()).padStart(2,'0')}`;
+            
             const p = getThailandTimeParts();
             const maxDateObj = new Date(p.year, parseInt(p.month, 10)-1, p.day);
             maxDateObj.setDate(maxDateObj.getDate() + 7);
@@ -1596,8 +1614,8 @@
                 altFormat: "j M Y", 
                 dateFormat: "Y-m-d", 
                 defaultDate: todayStr,
-                minDate: window.isLoggedIn ? null : currentWeekStartInit,
-                maxDate: window.isLoggedIn ? null : nextWeekEndInit,
+                minDate: window.isLoggedIn ? null : scheduleMinDateStr,
+                maxDate: window.isLoggedIn ? null : scheduleMaxDateStr,
                 onChange: (sd, dateStr) => {
                     window.currentFilterWeek = getWeekString(dateStr);
                     updateWeekLabel();
