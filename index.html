@@ -110,7 +110,7 @@
     <!-- Hidden Input for Updating Slip -->
     <input type="file" id="updateSlipInput" class="hidden" accept="image/*">
     <!-- Hidden Input for Restoring Backup -->
-    <input type="file" id="restoreInput" class="hidden" accept=".json" onchange="importBackupFile(event)">
+    <input type="file" id="restoreInput" class="hidden" accept=".json" onchange="window.importBackupFile(event)">
 
     <div class="max-w-[1400px] mx-auto">
         <header class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6 no-print">
@@ -134,25 +134,25 @@
             <div class="flex flex-1 justify-end gap-2 flex-wrap items-center">
                 <!-- Group of Admin Buttons (Hidden by default) -->
                 <div id="mainActionButtons" class="flex gap-2 flex-wrap hidden">
-                    <button onclick="toggleAdminMode()" id="adminBtn" class="px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-xl text-sm font-bold hover:bg-red-100 transition-all flex items-center gap-2">
+                    <button onclick="window.toggleAdminMode()" id="adminBtn" class="px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-xl text-sm font-bold hover:bg-red-100 transition-all flex items-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                         🔒 ปลดล็อกผู้ดูแล
                     </button>
-                    <button onclick="printWeeklySchedule()" class="px-4 py-2 bg-emerald-600 text-white rounded-xl text-sm font-bold hover:bg-emerald-700 flex items-center gap-2 transition-all shadow-lg shadow-emerald-200">
+                    <button onclick="window.printWeeklySchedule()" class="px-4 py-2 bg-emerald-600 text-white rounded-xl text-sm font-bold hover:bg-emerald-700 flex items-center gap-2 transition-all shadow-lg shadow-emerald-200">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                         📄 พิมพ์ตารางล่วงหน้า
                     </button>
-                    <button onclick="openBackupModal()" class="px-4 py-2 bg-amber-500 text-white rounded-xl text-sm font-bold hover:bg-amber-600 flex items-center gap-2 transition-all shadow-lg shadow-amber-200">
+                    <button onclick="window.openBackupModal()" class="px-4 py-2 bg-amber-500 text-white rounded-xl text-sm font-bold hover:bg-amber-600 flex items-center gap-2 transition-all shadow-lg shadow-amber-200">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg>
                         จัดการข้อมูล (Backup)
                     </button>
-                    <button onclick="openReportModal()" class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 flex items-center gap-2 transition-all shadow-lg shadow-indigo-200">
+                    <button onclick="window.openReportModal()" class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 flex items-center gap-2 transition-all shadow-lg shadow-indigo-200">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                         รายงานสรุป
                     </button>
                 </div>
                 <!-- Login Button -->
-                <button id="loginBtn" onclick="toggleLogin()" class="px-4 py-2 bg-slate-800 text-white rounded-xl text-sm font-bold hover:bg-slate-700 transition-all flex items-center gap-2 shadow-lg ml-2">
+                <button id="loginBtn" onclick="window.toggleLogin()" class="px-4 py-2 bg-slate-800 text-white rounded-xl text-sm font-bold hover:bg-slate-700 transition-all flex items-center gap-2 shadow-lg ml-2">
                     🔐 เข้าสู่ระบบ
                 </button>
             </div>
@@ -165,7 +165,7 @@
                     
                     <div class="flex justify-between items-center mb-3">
                         <h2 class="text-xl font-bold text-slate-700 transition-colors" id="formTitle">จองคอร์ตสนามเทนนิส</h2>
-                        <button type="button" id="togglePastModeBtn" onclick="togglePastBookingMode()" class="px-3 py-1.5 bg-slate-100 text-slate-600 rounded-lg text-[11px] font-bold hover:bg-slate-200 transition-colors flex items-center gap-1 shadow-sm">
+                        <button type="button" id="togglePastModeBtn" onclick="window.togglePastBookingMode()" class="px-3 py-1.5 bg-slate-100 text-slate-600 rounded-lg text-[11px] font-bold hover:bg-slate-200 transition-colors flex items-center gap-1 shadow-sm">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             บันทึกย้อนหลัง
                         </button>
@@ -189,11 +189,11 @@
                             <div class="grid grid-cols-12 gap-3">
                                 <div class="col-span-6">
                                     <label class="text-xs font-bold text-slate-500 uppercase">เริ่ม</label>
-                                    <select name="time" id="timeSelect" onchange="updateHourOptions()" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-lg font-bold text-slate-700"></select>
+                                    <select name="time" id="timeSelect" onchange="window.updateHourOptions()" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-lg font-bold text-slate-700"></select>
                                 </div>
                                 <div class="col-span-6">
                                     <label class="text-xs font-bold text-slate-500 uppercase">ชม.</label>
-                                    <select name="hours" id="hoursSelect" onchange="calculateTotal()" class="w-full border border-slate-200 rounded-lg px-2 py-2.5 text-sm font-bold text-blue-600"></select>
+                                    <select name="hours" id="hoursSelect" onchange="window.calculateTotal()" class="w-full border border-slate-200 rounded-lg px-2 py-2.5 text-sm font-bold text-blue-600"></select>
                                 </div>
                             </div>
                         </div>
@@ -201,20 +201,20 @@
                         <div class="space-y-3">
                             <div class="flex justify-between items-center">
                                 <span class="text-xs font-bold text-slate-500 uppercase">ข้อมูลผู้จอง</span>
-                                <select id="customerHistory" onchange="fillCustomerInfo(this.value)" class="text-xs text-blue-600 font-bold bg-transparent outline-none cursor-pointer">
+                                <select id="customerHistory" onchange="window.fillCustomerInfo(this.value)" class="text-xs text-blue-600 font-bold bg-transparent outline-none cursor-pointer">
                                     <option value="">▼ เลือกรายชื่อเดิม</option>
                                 </select>
                             </div>
                             <div class="grid grid-cols-2 gap-3">
                                 <input type="text" id="inputName" name="customerName" required placeholder="ชื่อผู้จอง" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm">
                                 <!-- บังคับใส่เบอร์โทรศัพท์สำหรับลูกค้าใหม่ / ทุกการจอง -->
-                                <input type="tel" id="inputPhone" name="phoneNumber" placeholder="เบอร์โทร (บังคับ)" required maxlength="10" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm" oninput="autoFillFromPhone(this.value)">
+                                <input type="tel" id="inputPhone" name="phoneNumber" placeholder="เบอร์โทร (บังคับ)" required maxlength="10" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm" oninput="window.autoFillFromPhone(this.value)">
                             </div>
                             
                             <div class="flex items-center gap-2 w-full">
                                 <div class="flex items-center shrink-0">
                                     <span class="text-sm text-slate-400 mr-1">125/</span>
-                                    <input type="text" id="inputAddress" name="address" required placeholder="เลขที่" maxlength="3" class="w-16 border border-slate-200 rounded-lg px-2 py-2 text-sm text-center focus:ring-2 focus:ring-blue-500 transition-all" onkeydown="if(event.key === 'Enter') { event.preventDefault(); autoFillFromAddress(this.value); }" onblur="autoFillFromAddress(this.value)">
+                                    <input type="text" id="inputAddress" name="address" required placeholder="เลขที่" maxlength="3" class="w-16 border border-slate-200 rounded-lg px-2 py-2 text-sm text-center focus:ring-2 focus:ring-blue-500 transition-all" onkeydown="if(event.key === 'Enter') { event.preventDefault(); window.autoFillFromAddress(this.value); }" onblur="window.autoFillFromAddress(this.value)">
                                 </div>
                                 <div class="flex-1 min-w-0">
                                     <input type="text" id="inputOwner1" name="ownerName1" placeholder="ชื่อเจ้าของแปลง" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-slate-50 focus:bg-white transition-colors">
@@ -226,7 +226,7 @@
                             </div>
                             
                             <div class="relative group">
-                                <input type="file" id="slipInput" accept="image/*" class="hidden" onchange="updateFileName(this)">
+                                <input type="file" id="slipInput" accept="image/*" class="hidden" onchange="window.updateFileName(this)">
                                 <label for="slipInput" class="flex items-center justify-center gap-2 w-full px-4 py-2 bg-slate-100 text-slate-500 rounded-xl cursor-pointer hover:bg-slate-200 border border-slate-200 text-sm transition-all group-hover:border-blue-300 group-hover:text-blue-600">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                                     <span id="slipFileName">อัพโหลดสลิปจ่ายเงิน</span>
@@ -253,14 +253,14 @@
                     <div class="p-4 bg-white border-b flex justify-between items-center gap-4">
                         <h3 class="font-bold text-slate-800">รายการจองรายสัปดาห์</h3>
                         <div class="flex items-center gap-2 bg-slate-100 p-1 rounded-lg">
-                            <button onclick="navigateWeek(-1)" class="p-2 hover:bg-white rounded-lg transition-colors" title="สัปดาห์ก่อนหน้า">
+                            <button onclick="window.navigateWeek(-1)" class="p-2 hover:bg-white rounded-lg transition-colors" title="สัปดาห์ก่อนหน้า">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                             </button>
                             <div id="weekDisplay" class="text-lg font-bold text-slate-700 min-w-[16rem] text-center select-none cursor-default">กำลังโหลด...</div>
-                            <button onclick="navigateWeek(1)" class="p-2 hover:bg-white rounded-lg transition-colors" title="สัปดาห์ถัดไป">
+                            <button onclick="window.navigateWeek(1)" class="p-2 hover:bg-white rounded-lg transition-colors" title="สัปดาห์ถัดไป">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                             </button>
-                            <button onclick="goToCurrentWeek()" class="px-4 py-2 bg-white text-blue-600 rounded-lg text-sm font-black uppercase hover:bg-blue-600 hover:text-white transition-all shadow-sm">สัปดาห์นี้</button>
+                            <button onclick="window.goToCurrentWeek()" class="px-4 py-2 bg-white text-blue-600 rounded-lg text-sm font-black uppercase hover:bg-blue-600 hover:text-white transition-all shadow-sm">สัปดาห์นี้</button>
                         </div>
                     </div>
                     <div class="table-scroll">
@@ -324,7 +324,7 @@
             <h3 class="text-xl font-bold text-slate-800 mb-2">ยืนยันการลบ?</h3>
             <p class="text-slate-500 text-sm mb-6">คุณแน่ใจว่าต้องการลบรายการจองนี้? ข้อมูลจะไม่สามารถกู้คืนได้</p>
             <div class="flex gap-3">
-                <button onclick="closeConfirmModal()" class="flex-1 px-4 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-colors">ยกเลิก</button>
+                <button onclick="window.closeConfirmModal()" class="flex-1 px-4 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-colors">ยกเลิก</button>
                 <button id="confirmDeleteBtn" class="flex-1 px-4 py-3 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 transition-colors shadow-lg shadow-red-200">ลบข้อมูล</button>
             </div>
         </div>
@@ -362,22 +362,22 @@
                     </div>
                 </div>
                 <div class="flex gap-3 mt-6 pt-2">
-                    <button type="button" onclick="closeEditBookingModal()" class="flex-1 px-4 py-2.5 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-colors">ยกเลิก</button>
+                    <button type="button" onclick="window.closeEditBookingModal()" class="flex-1 px-4 py-2.5 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-colors">ยกเลิก</button>
                     <button type="submit" class="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-lg">บันทึกการแก้ไข</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Receipt Modal (Used for both single receipt and schedule report) -->
+    <!-- Receipt Modal -->
     <div id="receiptModal" class="fixed inset-0 bg-slate-900/90 z-[70] hidden items-center justify-center p-4 overflow-y-auto">
         <div class="bg-white max-w-2xl w-full relative flex flex-col items-center p-0 md:p-4 rounded-none md:rounded-2xl shadow-2xl">
-            <button onclick="closeModal()" class="no-print absolute top-2 right-2 text-slate-400 hover:text-red-500 z-50 p-2 bg-white rounded-full shadow-sm">
+            <button onclick="window.closeModal()" class="no-print absolute top-2 right-2 text-slate-400 hover:text-red-500 z-50 p-2 bg-white rounded-full shadow-sm">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
             <div id="receiptContent" class="w-full space-y-4 bg-white"></div>
             <div id="receiptActions" class="no-print mt-4 flex gap-3 relative z-10 p-2">
-                <button onclick="closeModal()" class="px-6 py-2 bg-slate-200 text-slate-600 rounded-lg font-bold hover:bg-slate-300 transition-colors cursor-pointer text-sm">ปิด</button>
+                <button onclick="window.closeModal()" class="px-6 py-2 bg-slate-200 text-slate-600 rounded-lg font-bold hover:bg-slate-300 transition-colors cursor-pointer text-sm">ปิด</button>
                 <button type="button" onclick="window.print()" class="px-8 py-2 bg-blue-600 text-white rounded-lg font-bold shadow-lg hover:bg-blue-700 transition-colors cursor-pointer text-sm">พิมพ์ / บันทึก PDF</button>
             </div>
         </div>
@@ -386,7 +386,7 @@
     <!-- Report Modal -->
     <div id="reportModal" class="fixed inset-0 bg-slate-900/90 z-50 hidden items-center justify-center p-4 overflow-y-auto">
         <div class="bg-white rounded-3xl max-w-4xl w-full p-8 relative">
-            <button onclick="closeModal()" class="no-print absolute top-6 right-6 text-slate-400 z-10 hover:text-slate-700"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+            <button onclick="window.closeModal()" class="no-print absolute top-6 right-6 text-slate-400 z-10 hover:text-slate-700"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
             <div id="reportSummaryContent" class="space-y-6"></div>
         </div>
     </div>
@@ -394,7 +394,7 @@
     <!-- Backup Modal -->
     <div id="backupModal" class="fixed inset-0 bg-slate-900/90 z-[60] hidden items-center justify-center p-4 overflow-y-auto">
         <div class="bg-white rounded-2xl max-w-md w-full p-8 relative shadow-2xl">
-            <button onclick="closeModal()" class="no-print absolute top-4 right-4 text-slate-400 z-10 hover:text-slate-700"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+            <button onclick="window.closeModal()" class="no-print absolute top-4 right-4 text-slate-400 z-10 hover:text-slate-700"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
             
             <div class="text-center mb-8">
                 <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -405,12 +405,12 @@
             </div>
             
             <div class="space-y-4">
-                <button onclick="backupData()" class="w-full bg-white border-2 border-slate-200 hover:border-blue-500 hover:text-blue-600 text-slate-600 py-4 rounded-xl font-bold flex flex-col items-center gap-2 transition-all">
+                <button onclick="window.backupData()" class="w-full bg-white border-2 border-slate-200 hover:border-blue-500 hover:text-blue-600 text-slate-600 py-4 rounded-xl font-bold flex flex-col items-center gap-2 transition-all">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                     <span>ดาวน์โหลดไฟล์สำรองข้อมูล (Backup)</span>
                 </button>
                 
-                <button onclick="triggerRestore()" class="w-full bg-slate-50 hover:bg-amber-50 text-slate-600 hover:text-amber-600 border-2 border-transparent hover:border-amber-300 py-4 rounded-xl font-bold flex flex-col items-center gap-2 transition-all">
+                <button onclick="window.triggerRestore()" class="w-full bg-slate-50 hover:bg-amber-50 text-slate-600 hover:text-amber-600 border-2 border-transparent hover:border-amber-300 py-4 rounded-xl font-bold flex flex-col items-center gap-2 transition-all">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                     <span>กู้คืนข้อมูลจากไฟล์ (Restore)</span>
                 </button>
@@ -421,24 +421,24 @@
     </div>
 
     <!-- Slip Preview Modal (Z-Index 60) -->
-    <div id="slipModal" class="fixed inset-0 bg-black/95 z-[60] hidden flex-col items-center justify-center p-4 overflow-y-auto" onclick="if(event.target === this) closeModal()">
+    <div id="slipModal" class="fixed inset-0 bg-black/95 z-[60] hidden flex-col items-center justify-center p-4 overflow-y-auto" onclick="if(event.target === this) window.closeModal()">
         <div class="max-w-2xl w-full flex flex-col items-center gap-4">
             <div class="relative w-full flex justify-center bg-black rounded-2xl overflow-hidden ring-1 ring-white/10">
                 <img id="slipPreview" src="" class="max-h-[70vh] w-auto object-contain shadow-2xl">
             </div>
             <div class="no-print flex flex-wrap justify-center gap-3 w-full p-4 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 shadow-2xl relative z-10">
-                <button onclick="closeModal()" class="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg active:scale-95 cursor-pointer">ปิดภาพ</button>
-                <button id="btnChangeSlipModal" onclick="changeSlipInModal()" class="px-6 py-2.5 bg-amber-500 hover:bg-amber-400 text-white rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg active:scale-95 cursor-pointer">เปลี่ยนรูปใหม่</button>
-                <button id="btnRemoveSlipModal" onclick="removeSlipInModal()" class="px-6 py-2.5 bg-red-500 hover:bg-red-400 text-white rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg active:scale-95 cursor-pointer">ลบสลิป (ค้างชำระ)</button>
+                <button onclick="window.closeModal()" class="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg active:scale-95 cursor-pointer">ปิดภาพ</button>
+                <button id="btnChangeSlipModal" onclick="window.changeSlipInModal()" class="px-6 py-2.5 bg-amber-500 hover:bg-amber-400 text-white rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg active:scale-95 cursor-pointer">เปลี่ยนรูปใหม่</button>
+                <button id="btnRemoveSlipModal" onclick="window.removeSlipInModal()" class="px-6 py-2.5 bg-red-500 hover:bg-red-400 text-white rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg active:scale-95 cursor-pointer">ลบสลิป (ค้างชำระ)</button>
                 <button type="button" onclick="window.print()" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg active:scale-95 cursor-pointer">พิมพ์ภาพ / PDF</button>
             </div>
         </div>
     </div>
 
     <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js';
-        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
-        import { getFirestore, collection, addDoc, doc, deleteDoc, updateDoc, onSnapshot, query } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js';
+        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js';
+        import { getFirestore, collection, addDoc, doc, deleteDoc, updateDoc, onSnapshot, query } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js';
 
         // Firebase Setup
         let firebaseConfigRaw = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
@@ -463,7 +463,7 @@
         let isPastBookingMode = false; 
         
         window.adminMode = false;
-        window.isLoggedIn = false; // ตัวแปรสถานะ Login ภาพรวม
+        window.isLoggedIn = false;
         
         const originalDocTitle = document.title;
         let unsubscribeSnapshot = null;
@@ -472,9 +472,6 @@
 
         const thaiMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
 
-        // -----------------------------------------------------------
-        // 🗃️ ฐานข้อมูลรายชื่อเจ้าของแปลง (Master DB)
-        // -----------------------------------------------------------
         const rawOwnerCSV = `
 125/1,สิทธิชัย เรืองศิรินุสรณ์
 125/2,วัฒน์ชัย มิ่งบรรเจิดสุข
@@ -1002,6 +999,7 @@
             
             // Re-render ตารางเพื่อซ่อน/โชว์คอลัมน์ "จัดการ"
             renderBookingList();
+            window.renderSchedule();
         };
 
         // ฟังก์ชัน Toggle Admin Mode
@@ -1171,6 +1169,7 @@
         }
 
         const getStartOfWeek = (weekStr) => {
+             if (!weekStr) return new Date();
              const [y, w] = weekStr.split('-W').map(Number);
              const d = new Date(y, 0, 4); 
              const day = d.getDay() || 7;
@@ -1198,6 +1197,7 @@
         }
 
         const updateWeekLabel = () => {
+            if (!currentFilterWeek) return;
             const d = getStartOfWeek(currentFilterWeek);
             const display = document.getElementById('weekDisplay');
             if (display) display.innerText = `อาทิตย์ที่: ${formatThaiDate(d)}`;
@@ -1338,7 +1338,7 @@
                 await updateDoc(docRef, { slip: "" });
                 
                 if (fromModal) {
-                    closeModal();
+                    window.closeModal();
                     document.getElementById('slipPreview').src = '';
                 }
                 
@@ -1499,7 +1499,7 @@
                 loadCustomerHistory();
             }, (error) => {
                 console.error("Snapshot error:", error);
-                window.showAlert("ไม่สามารถดึงข้อมูลจากฐานข้อมูลได้ กรุณาตรวจสอบสิทธิ์ Firebase");
+                window.showAlert("ไม่สามารถดึงข้อมูลจากฐานข้อมูลได้");
             });
         };
 
@@ -1625,9 +1625,12 @@
                 timeSelect.value = String(nowH).padStart(2, '0') + ":00";
             }
 
+            // Set currentFilterWeek BEFORE first render
+            currentFilterWeek = getWeekString(todayStr);
+
             window.updateHourOptions(); 
             window.goToCurrentWeek();
-            window.updateUIAfterLogin(); // อัปเดตหน้าจอเพื่อล็อกการใช้งาน
+            window.updateUIAfterLogin();
         };
 
         window.updateHourOptions = () => {
@@ -1880,7 +1883,7 @@
                     } else {
                         // ปิดการคลิกจองจากตาราง หากไม่ได้ Log In
                         if (window.isLoggedIn) {
-                            td.innerHTML = `<div onclick="selectSlot('${date}', '${h}:00', '${court}')" class="rounded py-2 text-sm slot-free cursor-pointer hover:bg-emerald-200">ว่าง</div>`;
+                            td.innerHTML = `<div onclick="window.selectSlot('${date}', '${h}:00', '${court}')" class="rounded py-2 text-sm slot-free cursor-pointer hover:bg-emerald-200">ว่าง</div>`;
                         } else {
                             td.innerHTML = `<div class="rounded py-2 text-sm slot-free">ว่าง</div>`;
                         }
@@ -1981,7 +1984,7 @@
 
                     tr.className = classes;
                     tr.onclick = (e) => {
-                        if (!window.isLoggedIn) return; // คลิกไม่ได้ถ้ายังไม่ล็อกอิน
+                        if (!window.isLoggedIn) return; 
                         if(e.target.closest('button') || e.target.closest('input')) return;
                         window.selectBookingFromList(b);
                     };
@@ -2450,7 +2453,7 @@
                     <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm"><h3 class="text-xs font-bold text-slate-400 uppercase mb-3 text-center tracking-wider">สัดส่วนชั่วโมงการใช้งาน (เปิดไฟ/ไม่เปิดไฟ)</h3><canvas id="usageChart"></canvas></div>
                 </div>
                 <div class="pt-6 no-print grid grid-cols-2 gap-4">
-                    <button onclick="closeModal()" class="w-full bg-slate-200 text-slate-600 py-3 rounded-xl font-bold hover:bg-slate-300">ปิด</button>
+                    <button onclick="window.closeModal()" class="w-full bg-slate-200 text-slate-600 py-3 rounded-xl font-bold hover:bg-slate-300">ปิด</button>
                     <button onclick="window.print()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200">พิมพ์รายงาน / PDF</button>
                 </div>
              `;
@@ -2519,6 +2522,12 @@
                 });
              }, 100);
         }
+
+        // Render หน้าจอเปล่าๆ ทันที
+        init(); 
+        
+        // โหลดข้อมูลออนไลน์
+        initAuth();
 
     </script>
 </body>
