@@ -131,29 +131,36 @@
             </div>
 
             <!-- Right Side: Action Button -->
-            <div class="flex flex-1 justify-end gap-2 flex-wrap">
-                <button onclick="toggleAdminMode()" id="adminBtn" class="px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-xl text-sm font-bold hover:bg-red-100 transition-all flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                    🔒 ปลดล็อกผู้ดูแล
-                </button>
-                <button onclick="printWeeklySchedule()" class="px-4 py-2 bg-emerald-600 text-white rounded-xl text-sm font-bold hover:bg-emerald-700 flex items-center gap-2 transition-all shadow-lg shadow-emerald-200">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    📄 พิมพ์ตารางล่วงหน้า
-                </button>
-                <button onclick="openBackupModal()" class="px-4 py-2 bg-amber-500 text-white rounded-xl text-sm font-bold hover:bg-amber-600 flex items-center gap-2 transition-all shadow-lg shadow-amber-200">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg>
-                    จัดการข้อมูล (Backup)
-                </button>
-                <button onclick="openReportModal()" class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 flex items-center gap-2 transition-all shadow-lg shadow-indigo-200">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    รายงานสรุป
+            <div class="flex flex-1 justify-end gap-2 flex-wrap items-center">
+                <!-- Group of Admin Buttons (Hidden by default) -->
+                <div id="mainActionButtons" class="flex gap-2 flex-wrap hidden">
+                    <button onclick="toggleAdminMode()" id="adminBtn" class="px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-xl text-sm font-bold hover:bg-red-100 transition-all flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                        🔒 ปลดล็อกผู้ดูแล
+                    </button>
+                    <button onclick="printWeeklySchedule()" class="px-4 py-2 bg-emerald-600 text-white rounded-xl text-sm font-bold hover:bg-emerald-700 flex items-center gap-2 transition-all shadow-lg shadow-emerald-200">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        📄 พิมพ์ตารางล่วงหน้า
+                    </button>
+                    <button onclick="openBackupModal()" class="px-4 py-2 bg-amber-500 text-white rounded-xl text-sm font-bold hover:bg-amber-600 flex items-center gap-2 transition-all shadow-lg shadow-amber-200">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg>
+                        จัดการข้อมูล (Backup)
+                    </button>
+                    <button onclick="openReportModal()" class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 flex items-center gap-2 transition-all shadow-lg shadow-indigo-200">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        รายงานสรุป
+                    </button>
+                </div>
+                <!-- Login Button -->
+                <button id="loginBtn" onclick="toggleLogin()" class="px-4 py-2 bg-slate-800 text-white rounded-xl text-sm font-bold hover:bg-slate-700 transition-all flex items-center gap-2 shadow-lg ml-2">
+                    🔐 เข้าสู่ระบบ
                 </button>
             </div>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <!-- Left: Booking Form -->
-            <div class="lg:col-span-4 no-print">
+            <!-- Left: Booking Form (Hidden by default) -->
+            <div id="leftColumn" class="lg:col-span-4 no-print hidden">
                 <div class="glass-panel p-5 border border-slate-200 sticky top-4" id="bookingPanel">
                     
                     <div class="flex justify-between items-center mb-3">
@@ -239,8 +246,8 @@
                 </div>
             </div>
 
-            <!-- Right: Content -->
-            <div class="lg:col-span-8 space-y-6">
+            <!-- Right: Content (Starts full width, shrinks when logged in) -->
+            <div id="rightColumn" class="lg:col-span-12 space-y-6">
                 <!-- 1. Booking List -->
                 <div class="glass-panel border border-slate-200 overflow-hidden no-print">
                     <div class="p-4 bg-white border-b flex justify-between items-center gap-4">
@@ -265,7 +272,7 @@
                                     <th class="px-4 py-3">ผู้จอง / บ้านเลขที่</th>
                                     <th class="px-4 py-3">วัน-เวลา / สนาม</th>
                                     <th class="px-4 py-3 text-right">ยอดรวม</th>
-                                    <th class="px-4 py-3 text-center">จัดการ</th>
+                                    <th id="thActions" class="px-4 py-3 text-center hidden">จัดการ</th>
                                 </tr>
                             </thead>
                             <tbody id="bookingTableBody"></tbody>
@@ -347,7 +354,7 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div class="space-y-1">
                         <label class="text-xs font-bold text-slate-500 uppercase">เวลาเริ่ม</label>
-                        <select id="editTime" name="time" onchange="updateEditHourOptions()" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm font-bold text-slate-700 bg-white"></select>
+                        <select id="editTime" name="time" onchange="window.updateEditHourOptions()" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm font-bold text-slate-700 bg-white"></select>
                     </div>
                     <div class="space-y-1">
                         <label class="text-xs font-bold text-slate-500 uppercase">จำนวนชั่วโมง</label>
@@ -454,7 +461,10 @@
         let revenueChart = null, housesChart = null, usageChart = null;
         let highlightedBookingId = null;
         let isPastBookingMode = false; 
+        
         window.adminMode = false;
+        window.isLoggedIn = false; // ตัวแปรสถานะ Login ภาพรวม
+        
         const originalDocTitle = document.title;
         let unsubscribeSnapshot = null;
         
@@ -933,6 +943,67 @@
         // 🛠️ Utility Functions 
         // -----------------------------------------------------------
         
+        // ฟังก์ชัน ระบบ Login
+        window.toggleLogin = () => {
+            if (!window.isLoggedIn) {
+                const pass = prompt("กรุณาใส่รหัสผ่านเพื่อเข้าสู่ระบบ:");
+                if (pass === "Admin125/000") {
+                    window.isLoggedIn = true;
+                    window.showAlert("✅ เข้าสู่ระบบสำเร็จ");
+                    window.updateUIAfterLogin();
+                } else if (pass !== null) {
+                    window.showAlert("❌ รหัสผ่านไม่ถูกต้อง");
+                }
+            } else {
+                if(confirm("ต้องการออกจากระบบใช่หรือไม่?")) {
+                    window.isLoggedIn = false;
+                    window.adminMode = false; // ปิดโหมดผู้ดูแลไปด้วย
+                    window.showAlert("ล็อกเอาท์เรียบร้อยแล้ว");
+                    window.updateUIAfterLogin();
+                }
+            }
+        };
+
+        // ฟังก์ชัน ปรับ UI ตามสถานะ Login
+        window.updateUIAfterLogin = () => {
+            const loginBtn = document.getElementById('loginBtn');
+            const mainActions = document.getElementById('mainActionButtons');
+            const leftCol = document.getElementById('leftColumn');
+            const rightCol = document.getElementById('rightColumn');
+            const thActions = document.getElementById('thActions');
+            
+            if (window.isLoggedIn) {
+                // UI ตอน Logged In
+                loginBtn.innerHTML = '🔓 ออกจากระบบ';
+                loginBtn.classList.replace('bg-slate-800', 'bg-slate-500');
+                loginBtn.classList.replace('hover:bg-slate-700', 'hover:bg-slate-600');
+                
+                mainActions.classList.remove('hidden');
+                leftCol.classList.remove('hidden');
+                rightCol.classList.replace('lg:col-span-12', 'lg:col-span-8');
+                thActions.classList.remove('hidden');
+            } else {
+                // UI ตอน Guest Mode (View Only)
+                loginBtn.innerHTML = '🔐 เข้าสู่ระบบ';
+                loginBtn.classList.replace('bg-slate-500', 'bg-slate-800');
+                loginBtn.classList.replace('hover:bg-slate-600', 'hover:bg-slate-700');
+                
+                mainActions.classList.add('hidden');
+                leftCol.classList.add('hidden');
+                rightCol.classList.replace('lg:col-span-8', 'lg:col-span-12');
+                thActions.classList.add('hidden');
+                
+                // รีเซ็ตปุ่ม Admin
+                const adminBtn = document.getElementById('adminBtn');
+                adminBtn.classList.replace('bg-red-600', 'bg-red-50');
+                adminBtn.classList.replace('text-white', 'text-red-600');
+                adminBtn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg> 🔒 ปลดล็อกผู้ดูแล';
+            }
+            
+            // Re-render ตารางเพื่อซ่อน/โชว์คอลัมน์ "จัดการ"
+            renderBookingList();
+        };
+
         // ฟังก์ชัน Toggle Admin Mode
         window.toggleAdminMode = () => {
             if (!window.adminMode) {
@@ -1313,8 +1384,10 @@
                 const p = getThailandTimeParts();
                 const dateStr = `${p.year}-${p.month}-${p.day}_${p.hour}-${p.minute}-${p.second}`;
                 
+                let fileNamePrefix = 'makmai_backup_';
+                a.download = `${fileNamePrefix}${dateStr}.json`;
+                
                 a.href = url;
-                a.download = `makmai_backup_${dateStr}.json`;
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
@@ -1554,6 +1627,7 @@
 
             window.updateHourOptions(); 
             window.goToCurrentWeek();
+            window.updateUIAfterLogin(); // อัปเดตหน้าจอเพื่อล็อกการใช้งาน
         };
 
         window.updateHourOptions = () => {
@@ -1702,7 +1776,7 @@
                         });
                         
                         if (activeAdvanceBookings.length >= 3) {
-                            window.showAlert(`❌ บ้านเลขที่ 125/${cleanAddress} มีการจองล่วงหน้าเต็มโควต้า 3 ครั้งแล้ว`);
+                            window.showAlert(`❌ บ้านเลขที่ 125/${cleanAddress} มีการจองล่วงหน้าเต็มโควต้า 3 ครั้งแล้ว (ระบบนับแยกรายครั้ง ไม่รวมการจองเล่นภายในวันนี้)`);
                             return;
                         }
                     }
@@ -1804,7 +1878,12 @@
                     } else if(isPast) {
                         td.innerHTML = `<div class="rounded py-2 text-sm slot-past">✕</div>`;
                     } else {
-                        td.innerHTML = `<div onclick="selectSlot('${date}', '${h}:00', '${court}')" class="rounded py-2 text-sm slot-free cursor-pointer hover:bg-emerald-200">ว่าง</div>`;
+                        // ปิดการคลิกจองจากตาราง หากไม่ได้ Log In
+                        if (window.isLoggedIn) {
+                            td.innerHTML = `<div onclick="selectSlot('${date}', '${h}:00', '${court}')" class="rounded py-2 text-sm slot-free cursor-pointer hover:bg-emerald-200">ว่าง</div>`;
+                        } else {
+                            td.innerHTML = `<div class="rounded py-2 text-sm slot-free">ว่าง</div>`;
+                        }
                     }
                     tr.appendChild(td);
                 });
@@ -1813,6 +1892,11 @@
         };
 
         window.selectSlot = (d, t, c) => {
+            if (!window.isLoggedIn) {
+                window.showAlert("กรุณาเข้าสู่ระบบก่อนทำการจอง");
+                return;
+            }
+
             const today = getThailandDate();
             const nowH = getThailandHour();
             const h = parseInt(t.split(':')[0], 10);
@@ -1843,7 +1927,7 @@
             let list = allBookingsCache.filter(b => b.week === currentFilterWeek);
 
             if (!list.length) { 
-                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400">ไม่พบรายการจอง</td></tr>`; 
+                tbody.innerHTML = `<tr><td colspan="${window.isLoggedIn ? 6 : 5}" class="p-8 text-center text-slate-400">ไม่พบรายการจอง</td></tr>`; 
                 return; 
             }
 
@@ -1871,7 +1955,7 @@
 
                 if (tbody.children.length > 0) {
                      const spacer = document.createElement('tr');
-                     spacer.innerHTML = '<td colspan="6" class="h-4 border-none bg-transparent"></td>';
+                     spacer.innerHTML = `<td colspan="${window.isLoggedIn ? 6 : 5}" class="h-4 border-none bg-transparent"></td>`;
                      tbody.appendChild(spacer);
                 }
 
@@ -1886,7 +1970,8 @@
                     if (pastBooking) {
                         classes += `bg-slate-100/60 opacity-80 border-slate-200 `;
                     } else {
-                        classes += `bg-white cursor-pointer hover:bg-slate-50 border-emerald-500 `;
+                        classes += `bg-white border-emerald-500 `;
+                        if(window.isLoggedIn) classes += `cursor-pointer hover:bg-slate-50 `;
                     }
                     
                     classes += `border-l-4 border-r-4 `;
@@ -1896,6 +1981,7 @@
 
                     tr.className = classes;
                     tr.onclick = (e) => {
+                        if (!window.isLoggedIn) return; // คลิกไม่ได้ถ้ายังไม่ล็อกอิน
                         if(e.target.closest('button') || e.target.closest('input')) return;
                         window.selectBookingFromList(b);
                     };
@@ -1912,7 +1998,8 @@
                     }
 
                     let editColumnHtml = '';
-                    if (pastBooking && !window.adminMode) {
+                    if (!window.isLoggedIn) {
+                        // View Only Mode (ไม่คลิกแก้ไขไม่ได้)
                         editColumnHtml = `
                             <td class="px-4 py-3 border-none">
                                 <div class="font-bold text-slate-500 flex items-center gap-1">${formatThaiDate(b.date)}</div>
@@ -1920,40 +2007,52 @@
                             </td>
                         `;
                     } else {
-                        const editTitle = b.slip ? "คลิกเพื่อแก้ไขวัน-เวลา (ต้องล่วงหน้า 24 ชม.)" : "คลิกเพื่อแก้ไขวัน-เวลา (ค้างชำระแก้ไขได้ตลอด)";
-                        editColumnHtml = `
-                            <td class="px-4 py-3 border-none cursor-pointer hover:bg-blue-50 transition-colors group" onclick="window.openEditBookingModal('${b.id}')" title="${window.adminMode ? 'โหมดผู้ดูแลเปิดใช้งานอยู่' : editTitle}">
-                                <div class="font-bold ${window.adminMode ? 'text-red-600 group-hover:text-red-800' : 'text-blue-600 group-hover:text-blue-800'} flex items-center gap-1">${formatThaiDate(b.date)} <svg class="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity ${window.adminMode ? 'text-red-400' : 'text-slate-400'}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></div>
-                                <div class="text-[11px] font-bold text-slate-500 group-hover:text-slate-700">${b.time} (${b.hours} ชม.) - ${b.court}</div>
-                            </td>
-                        `;
-                    }
-
-                    let actionsHtml = `<div class="flex justify-center gap-1">`;
-                    
-                    actionsHtml += `
-                        <button onclick="${b.slip ? `window.printReceipt('${b.id}')` : ''}" class="p-2 rounded-lg transition-colors ${b.slip ? 'text-blue-600 hover:bg-blue-50' : 'text-slate-300'}" ${!b.slip ? 'disabled' : ''} title="พิมพ์ใบเสร็จ">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                        </button>
-                    `;
-                    
-                    if (b.slip) {
-                        actionsHtml += `<button onclick="window.viewSlipFromId('${b.id}')" class="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg" title="ดูรูปสลิป"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></button>`;
-                    } else {
                         if (pastBooking && !window.adminMode) {
-                            actionsHtml += `<button disabled class="p-2 text-slate-300 rounded-lg cursor-not-allowed" title="ไม่สามารถอัปโหลดสลิปได้ (หมดเวลา)"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg></button>`;
+                            editColumnHtml = `
+                                <td class="px-4 py-3 border-none">
+                                    <div class="font-bold text-slate-500 flex items-center gap-1">${formatThaiDate(b.date)}</div>
+                                    <div class="text-[11px] font-bold text-slate-400">${b.time} (${b.hours} ชม.) - ${b.court}</div>
+                                </td>
+                            `;
                         } else {
-                            actionsHtml += `<button onclick="window.triggerUploadSlip('${b.id}')" class="p-2 text-slate-400 hover:text-blue-600 rounded-lg" title="อัพโหลดสลิป"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg></button>`;
+                            const editTitle = b.slip ? "คลิกเพื่อแก้ไขวัน-เวลา (ต้องล่วงหน้า 24 ชม.)" : "คลิกเพื่อแก้ไขวัน-เวลา (ค้างชำระแก้ไขได้ตลอด)";
+                            editColumnHtml = `
+                                <td class="px-4 py-3 border-none cursor-pointer hover:bg-blue-50 transition-colors group" onclick="event.stopPropagation(); window.openEditBookingModal('${b.id}')" title="${window.adminMode ? 'โหมดผู้ดูแลเปิดใช้งานอยู่' : editTitle}">
+                                    <div class="font-bold ${window.adminMode ? 'text-red-600 group-hover:text-red-800' : 'text-blue-600 group-hover:text-blue-800'} flex items-center gap-1">${formatThaiDate(b.date)} <svg class="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity ${window.adminMode ? 'text-red-400' : 'text-slate-400'}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></div>
+                                    <div class="text-[11px] font-bold text-slate-500 group-hover:text-slate-700">${b.time} (${b.hours} ชม.) - ${b.court}</div>
+                                </td>
+                            `;
                         }
                     }
-                    
-                    if (pastBooking && !window.adminMode) {
-                        actionsHtml += `<button disabled class="p-2 text-slate-300 rounded-lg cursor-not-allowed" title="ไม่สามารถลบรายการจองที่เป็นอดีตได้"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>`;
-                    } else {
-                        actionsHtml += `<button onclick="window.deleteBooking('${b.id}')" class="p-2 text-red-500 hover:bg-red-50 rounded-lg" title="ลบรายการจอง"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>`;
+
+                    let actionsHtml = '';
+                    if (window.isLoggedIn) {
+                        actionsHtml = `<td class="px-4 py-3 border-none"><div class="flex justify-center gap-1">`;
+                        
+                        actionsHtml += `
+                            <button onclick="event.stopPropagation(); ${b.slip ? `window.printReceipt('${b.id}')` : ''}" class="p-2 rounded-lg transition-colors ${b.slip ? 'text-blue-600 hover:bg-blue-50' : 'text-slate-300'}" ${!b.slip ? 'disabled' : ''} title="พิมพ์ใบเสร็จ">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                            </button>
+                        `;
+                        
+                        if (b.slip) {
+                            actionsHtml += `<button onclick="event.stopPropagation(); window.viewSlipFromId('${b.id}')" class="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg" title="ดูรูปสลิป"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></button>`;
+                        } else {
+                            if (pastBooking && !window.adminMode) {
+                                actionsHtml += `<button disabled class="p-2 text-slate-300 rounded-lg cursor-not-allowed" title="ไม่สามารถอัปโหลดสลิปได้ (หมดเวลา)"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg></button>`;
+                            } else {
+                                actionsHtml += `<button onclick="event.stopPropagation(); window.triggerUploadSlip('${b.id}')" class="p-2 text-slate-400 hover:text-blue-600 rounded-lg" title="อัพโหลดสลิป"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg></button>`;
+                            }
+                        }
+                        
+                        if (pastBooking && !window.adminMode) {
+                            actionsHtml += `<button disabled class="p-2 text-slate-300 rounded-lg cursor-not-allowed" title="ไม่สามารถลบรายการจองที่เป็นอดีตได้"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>`;
+                        } else {
+                            actionsHtml += `<button onclick="event.stopPropagation(); window.deleteBooking('${b.id}')" class="p-2 text-red-500 hover:bg-red-50 rounded-lg" title="ลบรายการจอง"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>`;
+                        }
+                        
+                        actionsHtml += `</div></td>`;
                     }
-                    
-                    actionsHtml += `</div>`;
 
                     tr.innerHTML = `
                         <td class="px-4 py-3 text-center font-bold ${pastBooking ? 'text-slate-400' : 'text-slate-500'} border-none">${sequenceNumber++}</td>
@@ -1967,7 +2066,7 @@
                         </td>
                         ${editColumnHtml}
                         <td class="px-4 py-3 text-right font-black ${pastBooking ? 'text-slate-400' : 'text-slate-700'} border-none">฿${(Number(b.totalPrice) || 0).toLocaleString()}</td>
-                        <td class="px-4 py-3 border-none">${actionsHtml}</td>
+                        ${actionsHtml}
                     `;
                     tbody.appendChild(tr);
                 });
@@ -2096,6 +2195,7 @@
 
             const diffHours = (bookingDateTime.getTime() - nowDateTime.getTime()) / (1000 * 60 * 60);
 
+            // Bypass กฎ 24 ชม. ถ้ารหัสผู้ดูแล (adminMode) ถูกเปิดใช้งาน
             if (b.slip && diffHours < 24 && !window.adminMode) {
                 window.showAlert("❌ ไม่สามารถแก้ไขได้ (รายการที่ชำระเงินแล้วต้องแจ้งล่วงหน้าอย่างน้อย 24 ชั่วโมงก่อนเวลาเริ่มเล่น)");
                 return;
@@ -2419,10 +2519,6 @@
                 });
              }, 100);
         }
-
-        // Render ทันทีระหว่างรอ Firebase Auth
-        init(); 
-        initAuth();
 
     </script>
 </body>
