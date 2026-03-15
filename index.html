@@ -543,7 +543,7 @@
 125/67,ชูชาติ  ก่อเกียรตินารา
 125/68,อนันชัย โขมพัตราภรณ์
 125/69,ธัชพันธุ์  พูลทวีเกียรติ์
-125/70,ศิรินันท์ ปิยะรัฐ
+125/70,ศirินันท์ ปิยะรัฐ
 125/71,ดนัย - ณัฐชยา เทพจร
 125/72,บ. ไออาร์คอนซัลติ้งเซอร์วิสเซส จำกัด
 125/73,สมเกียรติ  โพธิสัตย์
@@ -955,6 +955,13 @@
                     btn.classList.replace('text-red-600', 'text-white');
                     btn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path></svg> 🔓 โหมดผู้ดูแล (เปิด)';
                     window.showAlert("✅ ปลดล็อกโหมดผู้ดูแล: สามารถแก้ไขเวลาการจองได้ทุกกรณี");
+                    
+                    // ปลดล็อกปฏิทินให้เลือกวันย้อนหลัง/ข้ามเดือนได้
+                    const scheduleFp = document.getElementById('scheduleDateInput')?._flatpickr;
+                    if (scheduleFp) {
+                        scheduleFp.set('minDate', null);
+                        scheduleFp.set('maxDate', null);
+                    }
                     window.renderAll();
                 } else if (pass !== null) {
                     window.showAlert("❌ รหัสผ่านไม่ถูกต้อง");
@@ -966,6 +973,7 @@
                 btn.classList.replace('text-white', 'text-red-600');
                 btn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg> 🔒 ปลดล็อกผู้ดูแล';
                 window.showAlert("🔒 ปิดโหมดผู้ดูแลแล้ว");
+                window.updateLoginUI(); // ล็อกปฏิทินกลับคืน
                 window.renderAll();
             }
         };
@@ -978,7 +986,7 @@
                 window.showAlert("ออกจากระบบเรียบร้อย เข้าสู่โหมดผู้เยี่ยมชม");
             } else {
                 const pass = prompt("กรุณาใส่รหัสผ่านสมาชิก:");
-                if (pass === "makmai") {
+                if (pass === "Admin125/000") {
                     window.isLoggedIn = true;
                     window.updateLoginUI();
                     window.showAlert("เข้าสู่ระบบสมาชิกสำเร็จ");
@@ -994,6 +1002,12 @@
             const rightCol = document.getElementById('rightColumn');
             const actionBtns = document.getElementById('mainActionButtons');
             const thActions = document.getElementById('thActions');
+            const scheduleFp = document.getElementById('scheduleDateInput')?._flatpickr;
+            
+            const todayStr = getThailandDate();
+            const currentWeekStart = getStartOfWeek(getWeekString(todayStr));
+            const nextWeekEnd = new Date(currentWeekStart);
+            nextWeekEnd.setDate(nextWeekEnd.getDate() + 13);
 
             if (window.isLoggedIn) {
                 loginBtn.innerHTML = '🚪 ออกจากระบบ';
@@ -1003,6 +1017,11 @@
                 rightCol.classList.replace('lg:col-span-12', 'lg:col-span-8');
                 actionBtns.classList.remove('hidden');
                 if(thActions) thActions.classList.remove('hidden');
+
+                if (scheduleFp) {
+                    scheduleFp.set('minDate', null);
+                    scheduleFp.set('maxDate', null);
+                }
             } else {
                 loginBtn.innerHTML = '🔐 เข้าสู่ระบบ (สำหรับจอง)';
                 loginBtn.classList.replace('bg-red-600', 'bg-slate-800');
@@ -1017,6 +1036,20 @@
                 adminBtn.classList.replace('bg-red-600', 'bg-red-50');
                 adminBtn.classList.replace('text-white', 'text-red-600');
                 adminBtn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg> 🔒 ปลดล็อกผู้ดูแล';
+
+                if (scheduleFp) {
+                    scheduleFp.set('minDate', currentWeekStart);
+                    scheduleFp.set('maxDate', nextWeekEnd);
+                }
+                
+                const currentRealWeekStr = getWeekString(todayStr);
+                const dMaxReal = new Date(currentWeekStart);
+                dMaxReal.setDate(dMaxReal.getDate() + 7);
+                const maxWeekStr = getWeekString(dMaxReal);
+                
+                if (window.currentFilterWeek < currentRealWeekStr || window.currentFilterWeek > maxWeekStr) {
+                    window.goToCurrentWeek();
+                }
             }
             window.renderAll();
         };
@@ -1468,6 +1501,9 @@
 
         const init = () => {
             const todayStr = getThailandDate();
+            const currentWeekStartInit = getStartOfWeek(getWeekString(todayStr));
+            const nextWeekEndInit = new Date(currentWeekStartInit);
+            nextWeekEndInit.setDate(nextWeekEndInit.getDate() + 13);
             
             const p = getThailandTimeParts();
             const maxDateObj = new Date(p.year, parseInt(p.month, 10)-1, p.day);
@@ -1539,6 +1575,8 @@
                 altFormat: "j M Y", 
                 dateFormat: "Y-m-d", 
                 defaultDate: todayStr,
+                minDate: window.isLoggedIn ? null : currentWeekStartInit,
+                maxDate: window.isLoggedIn ? null : nextWeekEndInit,
                 onChange: (sd, dateStr) => {
                     window.currentFilterWeek = getWeekString(dateStr);
                     updateWeekLabel();
@@ -1613,13 +1651,33 @@
         };
 
         window.navigateWeek = (dir) => {
-            const d = getStartOfWeek(window.currentFilterWeek);
-            d.setDate(d.getDate() + (dir * 7));
-            window.currentFilterWeek = getWeekString(d);
+            const todayStr = getThailandDate();
+            const currentRealWeekStr = getWeekString(todayStr);
+            const dCurrentReal = getStartOfWeek(currentRealWeekStr);
+            const dMaxReal = new Date(dCurrentReal);
+            dMaxReal.setDate(dMaxReal.getDate() + 7); // Next week start
+            const maxWeekStr = getWeekString(dMaxReal);
+
+            const dTarget = getStartOfWeek(window.currentFilterWeek);
+            dTarget.setDate(dTarget.getDate() + (dir * 7));
+            const targetWeekStr = getWeekString(dTarget);
+
+            if (!window.isLoggedIn) {
+                if (targetWeekStr < currentRealWeekStr) {
+                    window.showAlert("ผู้เยี่ยมชมไม่สามารถดูข้อมูลย้อนหลังได้");
+                    return;
+                }
+                if (targetWeekStr > maxWeekStr) {
+                    window.showAlert("ผู้เยี่ยมชมสามารถดูตารางล่วงหน้าได้ถึงสัปดาห์หน้าเท่านั้น");
+                    return;
+                }
+            }
+
+            window.currentFilterWeek = targetWeekStr;
             updateWeekLabel();
             const gridPicker = document.getElementById('scheduleDateInput');
             if (gridPicker && gridPicker._flatpickr) {
-                gridPicker._flatpickr.setDate(d);
+                gridPicker._flatpickr.setDate(dTarget, false);
             }
             window.renderAll();
         };
@@ -2605,19 +2663,26 @@
 
         // Initialize Firebase logic
         async function initAuth() {
-            if (typeof __firebase_config !== 'undefined') {
-                const firebaseConfig = JSON.parse(__firebase_config);
+            const firebaseConfig = {
+                apiKey: "AIzaSyA4ACuJR2m49qx-I56bkO-VIiyMHbnXXSM",
+                authDomain: "makmai-tennis-booking.firebaseapp.com",
+                databaseURL: "https://makmai-tennis-booking-default-rtdb.asia-southeast1.firebasedatabase.app",
+                projectId: "makmai-tennis-booking",
+                storageBucket: "makmai-tennis-booking.firebasestorage.app",
+                messagingSenderId: "804008227066",
+                appId: "1:804008227066:web:3996d65a9a2585970cd943",
+                measurementId: "G-LK3TBJ16D0"
+            };
+
+            try {
                 app = initializeApp(firebaseConfig);
                 auth = getAuth(app);
                 db = getFirestore(app);
-                appId = typeof __app_id !== 'undefined' ? __app_id : 'makmai-tennis';
-                collectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'bookings');
+                
+                // ชี้ไปยัง Collection หลักชื่อ 'bookings' ใน Firebase ของคุณ
+                collectionRef = collection(db, 'bookings');
 
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
+                await signInAnonymously(auth);
 
                 // Setup listener
                 onSnapshot(collectionRef, (snapshot) => {
@@ -2634,11 +2699,12 @@
                     loadCustomerHistory();
                 }, (error) => {
                     console.error("Firestore error:", error);
-                    window.showAlert("การเชื่อมต่อฐานข้อมูลออนไลน์มีปัญหา");
+                    window.showAlert("การเชื่อมต่อฐานข้อมูลมีปัญหา (อย่าลืมเปิดตั้งค่า Rules ใน Firebase)");
                 });
 
-            } else {
-                window.showAlert("⚠️ ไม่พบการตั้งค่าฐานข้อมูลออนไลน์ (ระบบอาจไม่บันทึกข้อมูล)");
+            } catch (error) {
+                console.error("Firebase Init Error:", error);
+                window.showAlert("เชื่อมต่อ Firebase ไม่สำเร็จ กรุณาตรวจสอบ Config");
             }
             
             init();
@@ -2657,7 +2723,7 @@
                     
                     if (bStr <= nowStr) {
                         try {
-                            await deleteDoc(doc(collectionRef, String(b.id)));
+                            if(collectionRef) await deleteDoc(doc(collectionRef, String(b.id)));
                         } catch(e) {}
                     }
                 }
