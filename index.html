@@ -455,8 +455,8 @@
         };
 
         // --- STATE VARIABLES ---
-        window.isLoggedIn = false;
-        window.adminMode = false;
+        window.isLoggedIn = localStorage.getItem('makmai_session') === 'true';
+        window.adminMode = localStorage.getItem('makmai_admin') === 'true';
         window.currentFilterWeek = '';
         window.allBookingsCache = [];
         window.highlightedBookingId = null;
@@ -615,7 +615,7 @@
 125/136,ประมาณ ภิญโญพรพาณิชย์
 125/137,อรพิน  รุจิเมธาภาส
 125/138,สุนทรา  โตประภัสร์
-125/139,จิรายุ  บูรณพงษ์กุล
+125/139,จรายุ  บูรณพงษ์กุล
 125/140,วีริศา จิระพรรคคณา
 125/141,เยาวดี  แจ่มศิริโรจน์รัตน์
 125/142,วิเชียร  ศรีธัญญรัตน์
@@ -1053,10 +1053,22 @@
 
         // --- AUTH & ADMIN MODES (ONLINE LOGIC) ---
         window.toggleLogin = function() {
-            if (window.isLoggedIn) { window.isLoggedIn = window.adminMode = false; window.updateLoginUI(); window.showAlert("ออกจากระบบแล้ว"); }
+            if (window.isLoggedIn) { 
+                window.isLoggedIn = false; 
+                window.adminMode = false; 
+                localStorage.removeItem('makmai_session');
+                localStorage.removeItem('makmai_admin');
+                window.updateLoginUI(); 
+                window.showAlert("ออกจากระบบแล้ว"); 
+            }
             else {
                 const p = prompt("กรุณาใส่รหัสผ่านสมาชิก:");
-                if (p === "Admin125/000") { window.isLoggedIn = true; window.updateLoginUI(); window.showAlert("เข้าสู่ระบบสำเร็จ"); }
+                if (p === "Admin125/000") { 
+                    window.isLoggedIn = true; 
+                    localStorage.setItem('makmai_session', 'true');
+                    window.updateLoginUI(); 
+                    window.showAlert("เข้าสู่ระบบสำเร็จ"); 
+                }
                 else if (p !== null) window.showAlert("❌ รหัสไม่ถูกต้อง");
             }
         };
@@ -1066,21 +1078,35 @@
             const today = window.getThailandDate(), curWS = window.getStartOfWeek(window.getWeekString(today)), nextWE = new Date(curWS); nextWE.setDate(nextWE.getDate() + 13);
             const minS = `${curWS.getFullYear()}-${String(curWS.getMonth()+1).padStart(2,'0')}-${String(curWS.getDate()).padStart(2,'0')}`;
             const maxS = `${nextWE.getFullYear()}-${String(nextWE.getMonth()+1).padStart(2,'0')}-${String(nextWE.getDate()).padStart(2,'0')}`;
+            
+            const ad = document.getElementById('adminBtn'); 
 
             if (window.isLoggedIn) {
                 b.innerHTML = '🚪 ออกจากระบบ'; b.classList.replace('bg-slate-800', 'bg-red-600'); b.classList.replace('hover:bg-slate-700', 'hover:bg-red-700');
                 lc.classList.remove('hidden'); rc.classList.replace('lg:col-span-12', 'lg:col-span-8'); ab.classList.remove('hidden'); if(ta) ta.classList.remove('hidden');
-                if (fp) { fp.set('minDate', null); fp.set('maxDate', null); }
+                
+                if (window.adminMode) {
+                    if (ad) {
+                        ad.className = 'px-4 py-2 bg-red-600 text-white border border-red-700 rounded-xl text-sm font-bold hover:bg-red-700 transition-all flex items-center gap-2 ml-2 shadow-lg shadow-red-200';
+                        ad.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path></svg> 🔓 ปลดล็อกแล้ว (เปิด)';
+                    }
+                    if (fp) { fp.set('minDate', null); fp.set('maxDate', null); }
+                } else {
+                    if (ad) {
+                        ad.className = 'px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-xl text-sm font-bold hover:bg-red-100 transition-all flex items-center gap-2 ml-2';
+                        ad.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg> 🔒 ปลดล็อกผู้ดูแล';
+                    }
+                    if (fp) { fp.set('minDate', minS); fp.set('maxDate', maxS); }
+                }
             } else {
                 b.innerHTML = '🔐 เข้าสู่ระบบ (สำหรับจอง)'; b.classList.replace('bg-red-600', 'bg-slate-800'); b.classList.replace('hover:bg-red-700', 'hover:bg-slate-700');
                 lc.classList.add('hidden'); rc.classList.replace('lg:col-span-8', 'lg:col-span-12'); ab.classList.add('hidden'); if(ta) ta.classList.add('hidden');
                 
-                // Clear Admin State & Reset Button when logging out
                 window.adminMode = false;
-                const ad = document.getElementById('adminBtn'); 
+                localStorage.removeItem('makmai_admin');
+                
                 if (ad) {
-                    ad.classList.replace('bg-red-600', 'bg-red-50'); 
-                    ad.classList.replace('text-white', 'text-red-600'); 
+                    ad.className = 'px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-xl text-sm font-bold hover:bg-red-100 transition-all flex items-center gap-2 ml-2';
                     ad.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg> 🔒 ปลดล็อกผู้ดูแล';
                 }
 
@@ -1094,29 +1120,21 @@
         window.toggleAdminMode = function() {
             if (!window.isLoggedIn) return window.showAlert("กรุณาเข้าสู่ระบบก่อน");
             
-            const btn = document.getElementById('adminBtn');
-            const fp = document.getElementById('scheduleDateInput')?._flatpickr;
-
             if (!window.adminMode) {
                 const p = prompt("รหัสผู้ดูแล:");
                 if (p === "Mtennis") {
                     window.adminMode = true;
-                    btn.classList.replace('bg-red-50', 'bg-red-600'); 
-                    btn.classList.replace('text-red-600', 'text-white'); 
-                    btn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path></svg> 🔓 ปลดล็อกแล้ว (เปิด)';
-                    if (fp) { fp.set('minDate', null); fp.set('maxDate', null); }
+                    localStorage.setItem('makmai_admin', 'true');
                     window.showAlert("✅ ปลดล็อกโหมดผู้ดูแล: สามารถแก้ไขเวลาการจองได้ทุกกรณี");
-                    window.renderAll();
+                    window.updateLoginUI();
                 } else if (p !== null) {
                     window.showAlert("❌ รหัสไม่ถูกต้อง");
                 }
             } else { 
                 window.adminMode = false; 
-                btn.classList.replace('bg-red-600', 'bg-red-50'); 
-                btn.classList.replace('text-white', 'text-red-600'); 
-                btn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg> 🔒 ปลดล็อกผู้ดูแล';
-                window.updateLoginUI(); 
+                localStorage.removeItem('makmai_admin');
                 window.showAlert("🔒 ปิดโหมดผู้ดูแลแล้ว"); 
+                window.updateLoginUI(); 
             }
         };
 
@@ -1202,14 +1220,12 @@
                         const td = e.target.closest('td');
                         const cellIndex = td ? td.cellIndex : -1;
                         
-                        // Auto-scroll ONLY if clicked on the first 4 columns (Seq, Ref, Info, Date)
                         if (cellIndex >= 0 && cellIndex <= 3) {
                             window.syncScheduleToBooking(b);
                         }
 
                         if (!window.isLoggedIn) return;
                         
-                        // Handle interactions for members
                         if (e.target.closest('.edit-cell')) { window.openEditBookingModal(b.id); return; }
                         const btn = e.target.closest('button');
                         if (btn) {
@@ -1551,6 +1567,7 @@
             window.currentFilterWeek = window.getWeekString(today); window.updateHourOptions(); window.goToCurrentWeek();
         };
 
+        // Initialize Firebase and Application
         initAuth();
     </script>
 </body>
