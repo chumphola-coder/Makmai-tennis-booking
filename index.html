@@ -85,7 +85,6 @@
     <div class="max-w-[1400px] mx-auto w-full">
         <!-- Header -->
         <header class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6 no-print">
-            <!-- Left Side: Title -->
             <div class="flex-1 w-full flex flex-col items-center md:items-start text-center md:text-left">
                 <h1 class="text-3xl font-black text-slate-800 tracking-tight flex items-center gap-2 justify-center md:justify-start">
                     <span class="bg-blue-600 text-white p-1 rounded">🎾</span> แมกไม้เทนนิสคลับ
@@ -96,12 +95,10 @@
                 </div>
             </div>
 
-            <!-- Center: Logo -->
             <div class="flex-shrink-0 my-2 md:my-0">
                 <img src="แมกไม้พื้นหลังดำ.jpg" class="h-24 w-auto object-contain rounded-lg shadow-sm" alt="Makmai Logo" onerror="this.style.display='none'">
             </div>
 
-            <!-- Right Side: Action Button -->
             <div class="flex flex-1 justify-center md:justify-end gap-2 flex-wrap items-center w-full">
                 <!-- Group of Admin/User Buttons (Hidden when Guest) -->
                 <div id="mainActionButtons" class="flex gap-2 flex-wrap hidden justify-center md:justify-end w-full md:w-auto">
@@ -120,6 +117,10 @@
                     <button onclick="window.openReportModal()" class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 flex items-center gap-2 transition-all shadow-lg shadow-indigo-200">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                         รายงานสรุป
+                    </button>
+                    <button id="testMaintenanceBtn" onclick="window.forceTestMaintenance()" class="hidden px-4 py-2 bg-purple-600 text-white rounded-xl text-sm font-bold hover:bg-purple-700 transition-all flex items-center gap-2 ml-2 shadow-lg shadow-purple-200">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                        ทดสอบล้างข้อมูล
                     </button>
                     <button onclick="window.toggleAdminMode()" id="adminBtn" class="px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-xl text-sm font-bold hover:bg-red-100 transition-all flex items-center gap-2 ml-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
@@ -362,21 +363,21 @@
     </div>
 
     <!-- Auto Maintenance Modal -->
-    <div id="autoMaintenanceModal" class="fixed inset-0 bg-slate-900/90 z-[120] hidden items-center justify-center p-4">
-        <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl text-center mx-2">
-            <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+    <div id="autoMaintenanceModal" class="fixed inset-0 bg-slate-900/100 z-[120] hidden items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl text-center mx-2 border-t-4 border-purple-500">
+            <div class="w-16 h-16 bg-purple-50 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
             </div>
             <h3 id="maintenanceTitle" class="text-xl font-bold text-slate-800 mb-2">ถึงรอบการสำรองข้อมูลรายไตรมาส</h3>
-            <p class="text-slate-500 text-sm mb-4">เพื่อป้องกันโควต้าฐานข้อมูลเต็ม ระบบจะทำการดาวน์โหลด Excel, JSON และลบข้อมูลเก่าจำนวน <strong id="maintenanceCount" class="text-blue-600 font-black"></strong> ออกให้อัตโนมัติ</p>
-            <div class="bg-slate-50 p-4 rounded-xl text-left text-sm text-slate-600 mb-6 space-y-2 border border-slate-100">
-                <p class="font-bold flex items-center gap-2"><svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M5 13l4 4L19 7"></path></svg> 1. บันทึกประวัติลงไฟล์ Excel</p>
-                <p class="font-bold flex items-center gap-2"><svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M5 13l4 4L19 7"></path></svg> 2. สำรองข้อมูลรูปสลิปลงไฟล์ JSON</p>
-                <p class="font-bold flex items-center gap-2"><svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg> 3. ลบข้อมูลเก่าออกจากฐานข้อมูลออนไลน์</p>
+            <p class="text-slate-500 text-sm mb-4">เพื่อป้องกันโควต้าฐานข้อมูลเต็ม ระบบจะทำการดาวน์โหลด Excel, JSON และลบข้อมูลเก่าจำนวน <strong id="maintenanceCount" class="text-purple-600 font-black text-lg"></strong> ออกให้อัตโนมัติ</p>
+            <div class="bg-slate-50 p-4 rounded-xl text-left text-sm text-slate-600 mb-6 space-y-3 border border-slate-100">
+                <p class="font-bold flex items-center gap-2"><svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> 1. บันทึกประวัติลงไฟล์ Excel</p>
+                <p class="font-bold flex items-center gap-2"><svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> 2. สำรองข้อมูลรูปสลิปลงไฟล์ JSON</p>
+                <p class="font-bold flex items-center gap-2"><svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg> <span class="text-red-600">3. ลบข้อมูลเก่าออกจากออนไลน์!</span></p>
             </div>
             <div class="flex gap-3">
                 <button onclick="window.closeMaintenanceModal()" class="flex-1 px-4 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-colors">ข้ามไปก่อน</button>
-                <button id="btnStartMaintenance" onclick="window.executeAutoMaintenance()" class="flex-1 px-4 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-lg">เริ่มดำเนินการ</button>
+                <button id="btnStartMaintenance" onclick="window.executeAutoMaintenance()" class="flex-1 px-4 py-3 bg-purple-600 text-white rounded-xl font-bold hover:bg-purple-700 transition-colors shadow-lg">เริ่มดำเนินการ</button>
             </div>
         </div>
     </div>
@@ -492,7 +493,6 @@
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, doc, setDoc, deleteDoc, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Firebase Config
         const config = {
             apiKey: "AIzaSyA4ACuJR2m49qx-I56bkO-VIiyMHbnXXSM",
             authDomain: "makmai-tennis-booking.firebaseapp.com",
@@ -504,7 +504,6 @@
             measurementId: "G-LK3TBJ16D0"
         };
 
-        // --- STATE VARIABLES ---
         window.isLoggedIn = localStorage.getItem('makmai_session') === 'true';
         window.adminMode = localStorage.getItem('makmai_admin') === 'true';
         window.currentFilterWeek = '';
@@ -612,7 +611,6 @@
         window.openBackupModal = () => { document.getElementById('backupModal').classList.add('modal-active'); };
         window.closeMaintenanceModal = () => { document.getElementById('autoMaintenanceModal').classList.remove('modal-active'); };
 
-        // --- OWNER DB ---
         window.houseOwnerDB = {};
         const rawOwnerCSV = `
 125/1,สิทธิชัย เรืองศิรินุสรณ์
@@ -1212,6 +1210,7 @@
             const maxS = `${nextWE.getFullYear()}-${String(nextWE.getMonth()+1).padStart(2,'0')}-${String(nextWE.getDate()).padStart(2,'0')}`;
             
             const ad = document.getElementById('adminBtn'); 
+            const testBtn = document.getElementById('testMaintenanceBtn');
 
             if (window.isLoggedIn) {
                 b.innerHTML = '🚪 ออกจากระบบ'; b.classList.replace('bg-slate-800', 'bg-red-600'); b.classList.replace('hover:bg-slate-700', 'hover:bg-red-700');
@@ -1222,6 +1221,8 @@
                         ad.className = 'px-4 py-2 bg-red-600 text-white border border-red-700 rounded-xl text-sm font-bold hover:bg-red-700 transition-all flex items-center gap-2 ml-2 shadow-lg shadow-red-200';
                         ad.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path></svg> 🔓 ปลดล็อกแล้ว (เปิด)';
                     }
+                    if (testBtn) testBtn.classList.remove('hidden');
+                    
                     if (fp) { fp.set('minDate', null); fp.set('maxDate', null); }
                     window.checkAutoMaintenance(); 
                 } else {
@@ -1229,6 +1230,8 @@
                         ad.className = 'px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-xl text-sm font-bold hover:bg-red-100 transition-all flex items-center gap-2 ml-2';
                         ad.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg> 🔒 ปลดล็อกผู้ดูแล';
                     }
+                    if (testBtn) testBtn.classList.add('hidden');
+                    
                     if (fp) { fp.set('minDate', minS); fp.set('maxDate', maxS); }
                 }
             } else {
@@ -1242,6 +1245,7 @@
                     ad.className = 'px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-xl text-sm font-bold hover:bg-red-100 transition-all flex items-center gap-2 ml-2';
                     ad.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg> 🔒 ปลดล็อกผู้ดูแล';
                 }
+                if (testBtn) testBtn.classList.add('hidden');
 
                 if (fp) { fp.set('minDate', minS); fp.set('maxDate', maxS); }
                 const curW = window.getWeekString(today), nextW = window.getWeekString(maxS);
@@ -1332,9 +1336,9 @@
             document.getElementById('bookingPanel').scrollIntoView({ behavior: 'smooth' });
         };
 
-        window.renderAll = function() { renderBookingList(); window.renderSchedule(); };
+        window.renderAll = function() { window.renderBookingList(); window.renderSchedule(); };
 
-        function renderBookingList() {
+        window.renderBookingList = function() {
             const tbody = document.getElementById('bookingTableBody'), th = document.getElementById('thActions'); tbody.innerHTML = '';
             if (th) { if (window.isLoggedIn) th.classList.remove('hidden'); else th.classList.add('hidden'); }
             let list = window.allBookingsCache.filter(b => b.week === window.currentFilterWeek);
@@ -1372,12 +1376,12 @@
                     
                     const badge = isP ? (b.slip ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-slate-200 text-slate-600">สำเร็จ</span>` : `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-slate-200 text-slate-500">หมดเวลา</span>`) : (b.slip ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-blue-100 text-blue-700">ชำระแล้ว</span>` : `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-orange-100 text-orange-700">ค้างชำระ</span>`);
                     let edH = (!window.isLoggedIn || (isP && !window.adminMode)) ? `<td class="px-2 py-2 md:px-4 md:py-3 border-none"><div class="font-bold text-slate-500">${window.formatThaiDate(b.date)}</div><div class="text-[11px] font-bold text-slate-400">${b.time} (${b.hours} ชม.) - ${b.court}</div></td>` : `<td class="edit-cell px-2 py-2 md:px-4 md:py-3 border-none cursor-pointer hover:bg-blue-50 transition-colors group" title="${window.adminMode ? 'โหมดผู้ดูแลเปิดใช้งานอยู่' : ''}"><div class="font-bold ${window.adminMode?'text-red-600':'text-blue-600'}">${window.formatThaiDate(b.date)} ✏️</div><div class="text-[11px] font-bold text-slate-500">${b.time} (${b.hours} ชม.) - ${b.court}</div></td>`;
-                    let actH = `<td class="px-2 py-2 md:px-4 md:py-3 border-none ${!window.isLoggedIn?'hidden':''}"><div class="flex justify-center gap-1">` + (window.isLoggedIn ? `<button class="btn-print p-1 md:p-2 rounded-lg transition-colors ${b.slip ? 'text-blue-600 hover:bg-blue-50' : 'text-slate-300'}" ${!b.slip ? 'disabled' : ''} title="พิมพ์ใบเสร็จ"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg></button>` + (b.slip?`<button class="btn-view-slip p-1 md:p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg" title="ดูรูปสลิป"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></button>`:`<button class="btn-upload-slip p-1 md:p-2 text-slate-400 hover:text-blue-600 rounded-lg" ${isP && !window.adminMode?'disabled':''} title="อัพโหลดสลิป"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg></button>`) + `<button class="btn-delete p-1 md:p-2 text-red-500 hover:bg-red-50 rounded-lg" ${isP && !window.adminMode?'disabled':''} title="ลบรายการจอง"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>` : "") + `</div></td>`;
+                    let actH = `<td class="px-2 py-2 md:px-4 md:py-3 border-none ${!window.isLoggedIn?'hidden':''}"><div class="flex justify-center gap-1">` + (window.isLoggedIn ? `<button class="btn-print p-1 md:p-2 rounded-lg transition-colors ${b.slip ? 'text-blue-600 hover:bg-blue-50' : 'text-slate-300'}" ${!b.slip ? 'disabled' : ''} title="พิมพ์ใบเสร็จ"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg></button>` + (b.slip?`<button class="btn-view-slip p-1 md:p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg" title="ดูรูปสลิป"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></button>`:`<button class="btn-upload-slip p-1 md:p-2 text-slate-400 hover:text-blue-600 rounded-lg" ${isP && !window.adminMode?'disabled':''} title="อัพโหลดสลิป"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg></button>`) + `<button class="btn-delete p-1 md:p-2 rounded-lg transition-colors ${isP && !window.adminMode ? 'text-slate-300 cursor-not-allowed' : 'text-red-500 hover:bg-red-50'}" ${isP && !window.adminMode?'disabled':''} title="ลบรายการจอง"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>` : "") + `</div></td>`;
                     tr.innerHTML = `<td class="px-2 py-2 md:px-4 md:py-3 text-center font-bold ${isP?'text-slate-400':'text-slate-500'} border-none">${seq++}</td><td class="px-2 py-2 md:px-4 md:py-3 border-none"><div class="text-[10px] font-bold text-slate-400 font-mono">${window.generateRef(b)}</div>${badge}</td><td class="px-2 py-2 md:px-4 md:py-3 border-none"><div class="font-bold ${isP?'text-slate-500':'text-slate-700'}">${b.customerName}</div><div class="text-[11px] text-slate-400">125/${b.address}</div></td>${edH}<td class="px-2 py-2 md:px-4 md:py-3 text-right font-black ${isP?'text-slate-400':'text-slate-700'} border-none">฿${(Number(b.totalPrice)||0).toLocaleString()}</td>${actH}`;
                     tbody.appendChild(tr);
                 });
             });
-        }
+        };
 
         window.navigateWeek = function(dir) {
             const today = window.getThailandDate(), realW = window.getWeekString(today), dReal = window.getStartOfWeek(realW), dMax = new Date(dReal); dMax.setDate(dMax.getDate() + 7); const maxW = window.getWeekString(dMax);
@@ -1424,7 +1428,28 @@
             }
         };
 
-        // --- AUTO MAINTENANCE SYSTEM (QUARTERLY) ---
+        // --- AUTO MAINTENANCE SYSTEM (QUARTERLY / TEST) ---
+        
+        window.forceTestMaintenance = function() {
+            if (!window.adminMode) return window.showAlert("❌ เฉพาะผู้ดูแลระบบเท่านั้น");
+            
+            const allRecords = window.allBookingsCache;
+            
+            if (allRecords.length === 0) {
+                return window.showAlert("⚠️ ไม่มีข้อมูลในระบบให้ทำการล้าง");
+            }
+
+            window.pendingMaintenance = {
+                flagKey: 'test_maintenance_flag',
+                title: `ทดสอบระบบ (ข้อมูลทั้งหมด ${allRecords.length} รายการ)`,
+                records: allRecords
+            };
+            
+            document.getElementById('maintenanceTitle').innerText = `จำลองการสำรองข้อมูลและล้างฐานข้อมูล`;
+            document.getElementById('maintenanceCount').innerText = `${allRecords.length} รายการ`;
+            document.getElementById('autoMaintenanceModal').classList.add('modal-active');
+        };
+
         window.checkAutoMaintenance = function() {
             if (!window.adminMode) return; 
 
@@ -1516,8 +1541,9 @@
             } catch(e) {
                 console.error(e);
                 window.showAlert("❌ เกิดข้อผิดพลาด: " + e.message);
+            } finally {
                 btn.disabled = false;
-                btn.innerText = "ลองใหม่อีกครั้ง";
+                btn.innerText = "เริ่มดำเนินการ";
             }
         };
 
@@ -1720,7 +1746,10 @@
                 
                 existing.date = date; existing.court = court; existing.time = time; existing.hours = hours; existing.lightHours = implicitLightHours; existing.totalPrice = totalPrice; existing.week = weekStr;
                 await setDoc(doc(collectionRef, String(existing.id)), existing);
-                window.closeEditBookingModal(); window.syncScheduleToBooking(existing); window.showAlert("แก้ไขวัน-เวลาสำเร็จออนไลน์");
+                window.closeEditBookingModal(); 
+                window.highlightedBookingId = existing.id; // ไฮไลท์ไว้แต่ไม่ต้องเลื่อนหน้าจอ
+                window.renderAll();
+                window.showAlert("แก้ไขวัน-เวลาสำเร็จออนไลน์");
             } catch (err) { console.error(err); window.showAlert("เกิดข้อผิดพลาด: " + err.message); } finally { btn.disabled = false; btn.innerHTML = 'บันทึกการแก้ไข'; }
         };
 
@@ -1757,7 +1786,7 @@
             } catch (err) { window.showAlert("อัปโหลดไม่สำเร็จ"); } finally { e.target.value = ''; window.currentUploadId = null; }
         };
 
-        window.autoDeletePastUnpaid = async function() {
+        async function autoDeletePastUnpaid() {
             const nowStr = `${window.getThailandDate()} ${window.getThailandHour().toString().padStart(2,'0')}:00`;
             for (const b of window.allBookingsCache) {
                 if (!b.slip) {
@@ -1766,7 +1795,8 @@
                     }
                 }
             }
-        };
+        }
+        window.autoDeletePastUnpaid = autoDeletePastUnpaid;
 
         const init = function() {
             const today = window.getThailandDate(), curWS = window.getStartOfWeek(window.getWeekString(today)), nextWE = new Date(curWS); nextWE.setDate(nextWE.getDate() + 13);
@@ -1803,7 +1833,7 @@
                 await signInAnonymously(auth);
                 onSnapshot(collectionRef, (snap) => {
                     window.allBookingsCache = []; snap.forEach(d => window.allBookingsCache.push(d.data()));
-                    window.autoDeletePastUnpaid();
+                    autoDeletePastUnpaid();
                     window.allBookingsCache.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
                     window.renderAll();
                     const s = document.getElementById('customerHistory'); 
