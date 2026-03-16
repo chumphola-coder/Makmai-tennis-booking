@@ -22,7 +22,6 @@
         .glass-panel { background: #ffffff; border-radius: 1rem; box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.05); transition: all 0.3s ease; }
         .table-scroll { max-height: 450px; overflow-y: auto; overflow-x: auto; width: 100%; -webkit-overflow-scrolling: touch; }
         
-        /* Flatpickr Customization */
         .flatpickr-calendar { font-family: 'Kanit', sans-serif; border-radius: 1rem; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: none; }
         .flatpickr-day.selected { background: #2563eb !important; border-color: #2563eb !important; }
         
@@ -51,7 +50,6 @@
         .slot-past { background-color: #f1f5f9; color: #94a3b8; cursor: not-allowed; }
         .slot-played { background-color: #FFFBEB; color: #92400E; border: 1px solid #FCD34D; }
         
-        /* Highlight Animation */
         .slot-highlight { animation: pulse-ring 2s infinite; }
         @keyframes pulse-ring {
             0% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.7); }
@@ -59,7 +57,6 @@
             100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0); }
         }
         
-        /* --- PRINT STYLES --- */
         @media print {
             @page { margin: 0; size: auto; }
             body { margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; background-color: white; }
@@ -266,7 +263,7 @@
                                 <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2"></path></svg>
                                 ตารางสนาม
                             </h3>
-                            <input type="text" id="scheduleDateInput" class="bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 text-lg font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-500 w-48 text-center shadow-sm cursor-pointer" placeholder="เลือกวันที่">
+                            <input type="text" id="scheduleDateInput" class="bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 text-lg font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-50 w-48 text-center shadow-sm cursor-pointer" placeholder="เลือกวันที่">
                         </div>
                         <div class="flex gap-4 text-[10px] font-bold uppercase tracking-wider flex-wrap">
                             <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-emerald-400"></span> ว่าง</span>
@@ -439,7 +436,7 @@
         </div>
     </div>
 
-    <!-- FIREBASE MODULE SCRIPT -->
+    <!-- FIREBASE MODULE SCRIPT (ONLINE VERSION) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -494,7 +491,7 @@
 125/16,สมชัย-เทียมจิตต์ พงศ์พิชญ์พิทักษ์
 125/17,แสงทอง  ชัยสิริโรจน์
 125/18,สุนีย์  ศักดิ์ศรี
-125/19,กิตติวุฒิ วัฒคำแสง
+125/19,กิตติวุฒิ วัฒนคำแสง
 125/20,กลชัย  ไคยฤทธิ์
 125/21,จีราภรณ์ สุรเลิศรังสรรค์
 125/22,นงคราญ ธิติโรจนะวัฒน์
@@ -1052,7 +1049,7 @@
             }
         };
 
-        // --- AUTH & ADMIN MODES ---
+        // --- AUTH & ADMIN MODES (ONLINE LOGIC) ---
         window.toggleLogin = function() {
             if (window.isLoggedIn) { window.isLoggedIn = window.adminMode = false; window.updateLoginUI(); window.showAlert("ออกจากระบบแล้ว"); }
             else {
@@ -1140,24 +1137,17 @@
         };
 
         window.selectSlot = function(d, t, c) {
-            if (!window.isLoggedIn) return; // Prevent guest interaction
+            if (!window.isLoggedIn) return;
             const today = window.getThailandDate();
             const nowH = window.getThailandHour();
             const h = parseInt(t.split(':')[0], 10);
-            
             if (window.isPastBookingMode) {
-                if (d > today || (d === today && h > nowH)) {
-                    window.showAlert("โหมดบันทึกย้อนหลัง ใช้เลือกได้เฉพาะเวลาที่ผ่านไปแล้ว");
-                    return;
-                }
+                if (d > today || (d === today && h > nowH)) return window.showAlert("โหมดบันทึกย้อนหลัง ใช้เลือกได้เฉพาะเวลาที่ผ่านไปแล้ว");
             } else {
-                if (d < today || (d === today && h < nowH)) {
-                    window.showAlert("ไม่สามารถจองเวลาย้อนหลังได้ กรุณาใช้ปุ่ม 'บันทึกย้อนหลัง'");
-                    return;
-                }
+                if (d < today || (d === today && h < nowH)) return window.showAlert("ไม่สามารถจองเวลาย้อนหลังได้ กรุณาใช้ปุ่ม 'บันทึกย้อนหลัง'");
             }
-            
-            document.getElementById('dateInput')._flatpickr.setDate(d);
+            const fp = document.getElementById('dateInput')._flatpickr;
+            if(fp) fp.setDate(d);
             document.querySelector('select[name="court"]').value = c;
             document.getElementById('timeSelect').value = t.padStart(5, '0');
             window.updateHourOptions();
@@ -1240,7 +1230,7 @@
         
         window.updateWeekLabel = function() { const d = window.getStartOfWeek(window.currentFilterWeek); const display = document.getElementById('weekDisplay'); if (display) display.innerText = `อาทิตย์ที่: ${window.formatThaiDate(d.toISOString().split('T')[0])}`; };
 
-        // --- FIREBASE LOGIC ---
+        // --- FIREBASE ONLINE DB CONNECTION ---
         async function initAuth() {
             try {
                 app = initializeApp(config); auth = getAuth(app); db = getFirestore(app); collectionRef = collection(db, 'bookings');
@@ -1412,6 +1402,62 @@
             } catch (err) { console.error(err); window.showAlert("เกิดข้อผิดพลาด: " + err.message); } finally { btn.disabled = false; btn.innerHTML = '<span>ยืนยันการจอง</span>'; }
         };
 
+        window.openEditBookingModal = (id) => {
+            const b = window.allBookingsCache.find(x => String(x.id) === String(id)); if (!b) return;
+            const p = window.getThailandTimeParts();
+            const nowDateTime = new Date(p.year, parseInt(p.month,10)-1, p.day, parseInt(p.hour,10), parseInt(p.minute,10), 0);
+            const bStartH = parseInt((b.time||"00:00").split(':')[0], 10);
+            const bookingDateTime = new Date(b.date.split('-')[0], parseInt(b.date.split('-')[1],10)-1, b.date.split('-')[2], bStartH, 0, 0);
+            const diffHours = (bookingDateTime.getTime() - nowDateTime.getTime()) / (1000 * 60 * 60);
+
+            if (b.slip && diffHours < 24 && !window.adminMode) return window.showAlert("❌ ไม่สามารถแก้ไขได้ (รายการที่ชำระเงินแล้วต้องแจ้งล่วงหน้าอย่างน้อย 24 ชั่วโมงก่อนเวลาเริ่มเล่น)");
+
+            document.getElementById('editBookingId').value = b.id;
+            const editDateFp = document.getElementById('editDateInput')._flatpickr; 
+            if (editDateFp) { 
+                if (window.adminMode) {
+                    editDateFp.set('minDate', null); editDateFp.set('disable', []); 
+                } else {
+                    editDateFp.set('minDate', window.getThailandDate());
+                    const maxDateObj = new Date(p.year, parseInt(p.month, 10)-1, p.day); maxDateObj.setDate(maxDateObj.getDate() + 7);
+                    const maxBookingDateStr = `${maxDateObj.getFullYear()}-${String(maxDateObj.getMonth()+1).padStart(2,'0')}-${String(maxDateObj.getDate()).padStart(2,'0')}`;
+                    editDateFp.set('disable', [function(date) { return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}` > maxBookingDateStr; }]);
+                }
+                editDateFp.setDate(b.date); 
+            }
+            document.getElementById('editCourt').value = b.court;
+            let timeHtml = ''; for(let i=6; i<=20; i++) timeHtml += `<option value="${String(i).padStart(2,'0')}:00">${i}:00 น.</option>`;
+            document.getElementById('editTime').innerHTML = timeHtml; document.getElementById('editTime').value = (b.time||"").padStart(5, '0');
+            window.updateEditHourOptions(); document.getElementById('editHours').value = b.hours;
+            document.getElementById('editBookingModal').classList.add('modal-active');
+        };
+
+        document.getElementById('editBookingForm').onsubmit = async (e) => {
+            e.preventDefault(); const btn = document.querySelector('#editBookingForm button[type="submit"]'); const fd = new FormData(e.target);
+            try {
+                btn.disabled = true; btn.innerHTML = 'กำลังบันทึก...';
+                const idValue = document.getElementById('editBookingId').value, date = fd.get('date'), court = fd.get('court'), time = fd.get('time'), hours = parseInt(fd.get('hours'), 10), startH = parseInt(time.split(':')[0], 10), weekStr = window.getWeekString(date), todayThaiStr = window.getThailandDate(), nowH = window.getThailandHour();
+                
+                if (!window.adminMode && (date < todayThaiStr || (date === todayThaiStr && startH < nowH))) return window.showAlert("❌ เปลี่ยนเป็นเวลาย้อนหลังไม่ได้");
+                const existing = window.allBookingsCache.find(x => String(x.id) === idValue); if (!existing) return;
+                const cleanAddress = window.normalizeAddress(existing.address);
+
+                if (date > todayThaiStr && !window.adminMode) {
+                    if (window.allBookingsCache.filter(b => String(b.id) !== idValue && window.normalizeAddress(b.address) === cleanAddress && b.date > todayThaiStr).length >= 3) return window.showAlert(`❌ บ้านเลขที่ 125/${cleanAddress} จองล่วงหน้าเต็มโควต้าแล้ว`);
+                }
+
+                const requested = Array.from({length: hours}, (_, i) => startH + i);
+                if (window.allBookingsCache.filter(b => String(b.id) !== idValue && b.date === date && b.court === court).some(b => requested.some(s => s >= parseInt((b.time || "00").split(':')[0], 10) && s < parseInt((b.time || "00").split(':')[0], 10) + Number(b.hours || 1)))) return window.showAlert("❌ ช่วงเวลานี้ถูกจองแล้ว!");
+
+                let implicitLightHours = 0, totalPrice = 0;
+                for(let i = 0; i < hours; i++) { if (startH + i >= 18) { totalPrice += 150; implicitLightHours++; } else totalPrice += 100; }
+                
+                existing.date = date; existing.court = court; existing.time = time; existing.hours = hours; existing.lightHours = implicitLightHours; existing.totalPrice = totalPrice; existing.week = weekStr;
+                await setDoc(doc(collectionRef, String(existing.id)), existing);
+                window.closeEditBookingModal(); window.selectBookingFromList(existing); window.showAlert("แก้ไขวัน-เวลาสำเร็จออนไลน์");
+            } catch (err) { console.error(err); window.showAlert("เกิดข้อผิดพลาด: " + err.message); } finally { btn.disabled = false; btn.innerHTML = 'บันทึกการแก้ไข'; }
+        };
+
         window.viewSlipFromId = (id) => { const b = window.allBookingsCache.find(x => String(x.id) === String(id)); if(b && b.slip) { window.currentViewingSlipId = id; document.getElementById('slipPreview').src = b.slip; const isP = window.isBookingPast(b); const btnC = document.getElementById('btnChangeSlipModal'), btnR = document.getElementById('btnRemoveSlipModal'); if (isP && !window.adminMode) { btnC.style.display = 'none'; btnR.style.display = 'none'; } else { btnC.style.display = 'flex'; btnR.style.display = 'flex'; } document.getElementById('slipModal').classList.add('modal-active'); } else window.showAlert("ไม่พบรูปสลิป"); };
         window.changeSlipInModal = () => { const b = window.allBookingsCache.find(x => String(x.id) === String(window.currentViewingSlipId)); if (b && window.isBookingPast(b) && !window.adminMode) return window.showAlert("❌ เปลี่ยนสลิปไม่ได้ (เลยเวลาแล้ว)"); if (confirm("เปลี่ยนรูปสลิปใช่หรือไม่?")) { window.currentUploadId = window.currentViewingSlipId; document.getElementById('updateSlipInput').click(); } };
         window.triggerUploadSlip = (id) => { const b = window.allBookingsCache.find(x => String(x.id) === String(id)); if (b && window.isBookingPast(b) && !window.adminMode) return window.showAlert("❌ อัปโหลดสลิปไม่ได้ (เลยเวลาแล้ว)"); window.currentUploadId = id; document.getElementById('updateSlipInput').click(); };
@@ -1454,6 +1500,7 @@
             window.currentFilterWeek = window.getWeekString(today); window.updateHourOptions(); window.goToCurrentWeek();
         };
 
+        initAuth();
     </script>
 </body>
 </html>
