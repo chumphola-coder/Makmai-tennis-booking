@@ -465,6 +465,8 @@
         window.currentUploadId = null;
         window.currentViewingSlipId = null;
         window.itemToDeleteId = null;
+        window.revenueChart = null;
+        window.usageChart = null;
         
         let db, auth, app, collectionRef;
         const thaiMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
@@ -1072,7 +1074,16 @@
             } else {
                 b.innerHTML = '🔐 เข้าสู่ระบบ (สำหรับจอง)'; b.classList.replace('bg-red-600', 'bg-slate-800'); b.classList.replace('hover:bg-red-700', 'hover:bg-slate-700');
                 lc.classList.add('hidden'); rc.classList.replace('lg:col-span-8', 'lg:col-span-12'); ab.classList.add('hidden'); if(ta) ta.classList.add('hidden');
-                const ad = document.getElementById('adminBtn'); ad.classList.replace('bg-red-600', 'bg-red-50'); ad.classList.replace('text-white', 'text-red-600'); ad.innerHTML = '🔒 ปลดล็อกผู้ดูแล';
+                
+                // Clear Admin State & Reset Button when logging out
+                window.adminMode = false;
+                const ad = document.getElementById('adminBtn'); 
+                if (ad) {
+                    ad.classList.replace('bg-red-600', 'bg-red-50'); 
+                    ad.classList.replace('text-white', 'text-red-600'); 
+                    ad.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg> 🔒 ปลดล็อกผู้ดูแล';
+                }
+
                 if (fp) { fp.set('minDate', minS); fp.set('maxDate', maxS); }
                 const curW = window.getWeekString(today), nextW = window.getWeekString(maxS);
                 if (window.currentFilterWeek < curW || window.currentFilterWeek > nextW) window.goToCurrentWeek();
@@ -1082,15 +1093,31 @@
 
         window.toggleAdminMode = function() {
             if (!window.isLoggedIn) return window.showAlert("กรุณาเข้าสู่ระบบก่อน");
+            
+            const btn = document.getElementById('adminBtn');
+            const fp = document.getElementById('scheduleDateInput')?._flatpickr;
+
             if (!window.adminMode) {
                 const p = prompt("รหัสผู้ดูแล:");
                 if (p === "Mtennis") {
                     window.adminMode = true;
-                    const btn = document.getElementById('adminBtn'); btn.classList.replace('bg-red-50', 'bg-red-600'); btn.classList.replace('text-red-600', 'text-white'); btn.innerHTML = '🔓 ปลดล็อกแล้ว (เปิด)';
-                    const fp = document.getElementById('scheduleDateInput')?._flatpickr; if (fp) { fp.set('minDate', null); fp.set('maxDate', null); }
-                    window.showAlert("ปลดล็อกโหมดแอดมิน"); window.renderAll();
-                } else if (p !== null) window.showAlert("❌ รหัสไม่ถูกต้อง");
-            } else { window.adminMode = false; window.updateLoginUI(); window.showAlert("ปิดโหมดแอดมิน"); }
+                    btn.classList.replace('bg-red-50', 'bg-red-600'); 
+                    btn.classList.replace('text-red-600', 'text-white'); 
+                    btn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path></svg> 🔓 ปลดล็อกแล้ว (เปิด)';
+                    if (fp) { fp.set('minDate', null); fp.set('maxDate', null); }
+                    window.showAlert("✅ ปลดล็อกโหมดผู้ดูแล: สามารถแก้ไขเวลาการจองได้ทุกกรณี");
+                    window.renderAll();
+                } else if (p !== null) {
+                    window.showAlert("❌ รหัสไม่ถูกต้อง");
+                }
+            } else { 
+                window.adminMode = false; 
+                btn.classList.replace('bg-red-600', 'bg-red-50'); 
+                btn.classList.replace('text-white', 'text-red-600'); 
+                btn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg> 🔒 ปลดล็อกผู้ดูแล';
+                window.updateLoginUI(); 
+                window.showAlert("🔒 ปิดโหมดผู้ดูแลแล้ว"); 
+            }
         };
 
         window.togglePastBookingMode = () => {
@@ -1170,9 +1197,19 @@
                     if (b.slip) window.slipCache[b.id] = b.slip;
                     const tr = document.createElement('tr'), isP = window.isBookingPast(b);
                     tr.className = `transition-colors relative ${isP ? 'bg-slate-100/60 opacity-80 border-slate-200' : 'bg-white cursor-pointer hover:bg-slate-50 border-emerald-500'} border-l-4 border-r-4 ${idx===0?'border-t-4':''} ${idx===bks.length-1?'border-b-4':'border-b border-slate-100'}`;
+                    
                     tr.onclick = (e) => {
-                        window.syncScheduleToBooking(b);
+                        const td = e.target.closest('td');
+                        const cellIndex = td ? td.cellIndex : -1;
+                        
+                        // Auto-scroll ONLY if clicked on the first 4 columns (Seq, Ref, Info, Date)
+                        if (cellIndex >= 0 && cellIndex <= 3) {
+                            window.syncScheduleToBooking(b);
+                        }
+
                         if (!window.isLoggedIn) return;
+                        
+                        // Handle interactions for members
                         if (e.target.closest('.edit-cell')) { window.openEditBookingModal(b.id); return; }
                         const btn = e.target.closest('button');
                         if (btn) {
@@ -1183,6 +1220,7 @@
                             return;
                         }
                     };
+                    
                     const badge = isP ? (b.slip ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-slate-200 text-slate-600">สำเร็จ</span>` : `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-slate-200 text-slate-500">หมดเวลา</span>`) : (b.slip ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-blue-100 text-blue-700">ชำระแล้ว</span>` : `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-orange-100 text-orange-700">ค้างชำระ</span>`);
                     let edH = (!window.isLoggedIn || (isP && !window.adminMode)) ? `<td class="px-2 py-2 md:px-4 md:py-3 border-none"><div class="font-bold text-slate-500">${window.formatThaiDate(b.date)}</div><div class="text-[11px] font-bold text-slate-400">${b.time} (${b.hours} ชม.) - ${b.court}</div></td>` : `<td class="edit-cell px-2 py-2 md:px-4 md:py-3 border-none cursor-pointer hover:bg-blue-50 transition-colors group" title="${window.adminMode ? 'โหมดผู้ดูแลเปิดใช้งานอยู่' : ''}"><div class="font-bold ${window.adminMode?'text-red-600':'text-blue-600'}">${window.formatThaiDate(b.date)} ✏️</div><div class="text-[11px] font-bold text-slate-500">${b.time} (${b.hours} ชม.) - ${b.court}</div></td>`;
                     let actH = `<td class="px-2 py-2 md:px-4 md:py-3 border-none ${!window.isLoggedIn?'hidden':''}"><div class="flex justify-center gap-1">` + (window.isLoggedIn ? `<button class="btn-print p-1 md:p-2 rounded-lg transition-colors ${b.slip ? 'text-blue-600 hover:bg-blue-50' : 'text-slate-300'}" ${!b.slip ? 'disabled' : ''} title="พิมพ์ใบเสร็จ"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg></button>` + (b.slip?`<button class="btn-view-slip p-1 md:p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg" title="ดูรูปสลิป"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></button>`:`<button class="btn-upload-slip p-1 md:p-2 text-slate-400 hover:text-blue-600 rounded-lg" ${isP && !window.adminMode?'disabled':''} title="อัพโหลดสลิป"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg></button>`) + `<button class="btn-delete p-1 md:p-2 text-red-500 hover:bg-red-50 rounded-lg" ${isP && !window.adminMode?'disabled':''} title="ลบรายการจอง"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>` : "") + `</div></td>`;
@@ -1228,7 +1266,14 @@
             }, 50);
         };
         
-        window.updateWeekLabel = function() { const d = window.getStartOfWeek(window.currentFilterWeek); const display = document.getElementById('weekDisplay'); if (display) display.innerText = `อาทิตย์ที่: ${window.formatThaiDate(d.toISOString().split('T')[0])}`; };
+        window.updateWeekLabel = function() { 
+            const d = window.getStartOfWeek(window.currentFilterWeek); 
+            const display = document.getElementById('weekDisplay'); 
+            if (display) {
+                const tzStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+                display.innerText = `อาทิตย์ที่: ${window.formatThaiDate(tzStr)}`; 
+            }
+        };
 
         // --- FIREBASE ONLINE DB CONNECTION ---
         async function initAuth() {
@@ -1278,14 +1323,20 @@
              const yTotal = paidList.filter(b => b.date && b.date.startsWith(curY)).reduce((s, b) => s + (Number(b.totalPrice) || 0), 0);
              const uC = new Set(paidList.map(b => b.customerName)).size;
              const mTH = new Array(12).fill(0), mLH = new Array(12).fill(0), mNLH = new Array(12).fill(0);
-             paidList.forEach(b => { if(b.date && b.date.startsWith(curY)) { const m = parseInt(b.date.split('-')[1], 10) - 1, h = Number(b.hours), lh = Number(b.lightHours); mTH[m] += h; mLH[m] += lh; mNLH[m] += (h - lh); } });
+             paidList.forEach(b => { if(b.date && b.date.startsWith(curY)) { const m = parseInt(b.date.split('-')[1], 10) - 1, h = Number(b.hours)||0, lh = Number(b.lightHours)||0; mTH[m] += h; mLH[m] += lh; mNLH[m] += (h - lh); } });
              document.getElementById('reportSummaryContent').innerHTML = `<div class="text-center mb-6"><h2 class="text-2xl font-black text-slate-800">รายงานวิเคราะห์</h2><p class="text-slate-400 text-xs font-bold uppercase mt-1">Makmai Tennis Dashboard</p><p class="text-emerald-600 text-[10px] font-bold mt-2 bg-emerald-50 inline-block px-3 py-1 rounded-full">* คำนวณเฉพาะรายการที่ชำระเงินแล้ว</p></div><div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6"><div class="bg-blue-50 p-6 rounded-2xl text-center"><div class="text-xs font-bold text-blue-400 uppercase">รายได้เดือนนี้</div><div class="text-3xl font-black text-blue-700">฿${mTotal.toLocaleString()}</div></div><div class="bg-indigo-50 p-6 rounded-2xl text-center"><div class="text-xs font-bold text-indigo-400 uppercase">รายได้ปีนี้ (${curY})</div><div class="text-3xl font-black text-indigo-700">฿${yTotal.toLocaleString()}</div></div><div class="bg-emerald-50 p-6 rounded-2xl text-center md:col-span-2"><div class="text-xs font-bold text-emerald-500 uppercase">ผู้ใช้บริการที่ไม่ซ้ำกัน</div><div class="text-3xl font-black text-emerald-700">${uC.toLocaleString()} คน</div></div></div><div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6"><div class="bg-white p-4 rounded-2xl border"><h3 class="text-xs font-bold text-slate-400 text-center">รายได้รายเดือน</h3><canvas id="revenueChart"></canvas></div><div class="bg-white p-4 rounded-2xl border"><h3 class="text-xs font-bold text-slate-400 text-center">สัดส่วนเวลาใช้งาน (ไฟ/ไม่ไฟ)</h3><canvas id="usageChart"></canvas></div></div><div class="pt-6 no-print grid grid-cols-2 gap-4"><button onclick="window.closeModal()" class="w-full bg-slate-200 py-3 rounded-xl font-bold">ปิด</button><button onclick="window.print()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold shadow-lg">พิมพ์รายงาน / PDF</button></div>`;
              document.title = `Report_MakmaiTennis_${today}`; document.getElementById('reportModal').classList.add('modal-active');
              setTimeout(() => { 
+                 const ctxRev = document.getElementById('revenueChart');
                  if(window.revenueChart) window.revenueChart.destroy();
-                 window.revenueChart = new Chart(document.getElementById('revenueChart'), { type: 'bar', data: { labels: thaiMonths, datasets: [{ label: 'รายได้ (บาท)', data: mTH.map((_, i) => paidList.filter(b => b.date && b.date.startsWith(`${curY}-${String(i+1).padStart(2,'0')}`)).reduce((s, b) => s + (Number(b.totalPrice) || 0), 0)), backgroundColor: '#3b82f6', borderRadius: 4 }] }, options: { responsive: true, plugins: { legend: { display: false } } } });
+                 if (ctxRev) {
+                     window.revenueChart = new Chart(ctxRev, { type: 'bar', data: { labels: thaiMonths, datasets: [{ label: 'รายได้ (บาท)', data: mTH.map((_, i) => paidList.filter(b => b.date && b.date.startsWith(`${curY}-${String(i+1).padStart(2,'0')}`)).reduce((s, b) => s + (Number(b.totalPrice) || 0), 0)), backgroundColor: '#3b82f6', borderRadius: 4 }] }, options: { responsive: true, plugins: { legend: { display: false } } } });
+                 }
+                 const ctxUsg = document.getElementById('usageChart');
                  if(window.usageChart) window.usageChart.destroy();
-                 window.usageChart = new Chart(document.getElementById('usageChart'), { type: 'bar', data: { labels: thaiMonths, datasets: [{ label: 'เปิดไฟ (ชม.)', data: mLH, backgroundColor: '#f97316', stack: 'S0' }, { label: 'ไม่เปิดไฟ (ชม.)', data: mNLH, backgroundColor: '#10b981', stack: 'S0' }] }, options: { responsive: true, plugins: { legend: { position: 'bottom' } }, scales: { x: { stacked: true }, y: { stacked: true } } } });
+                 if (ctxUsg) {
+                     window.usageChart = new Chart(ctxUsg, { type: 'bar', data: { labels: thaiMonths, datasets: [{ label: 'เปิดไฟ (ชม.)', data: mLH, backgroundColor: '#f97316', stack: 'S0' }, { label: 'ไม่เปิดไฟ (ชม.)', data: mNLH, backgroundColor: '#10b981', stack: 'S0' }] }, options: { responsive: true, plugins: { legend: { position: 'bottom' } }, scales: { x: { stacked: true }, y: { stacked: true } } } });
+                 }
              }, 100);
         };
 
