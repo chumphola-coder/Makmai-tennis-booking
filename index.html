@@ -266,7 +266,7 @@
                                 <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2"></path></svg>
                                 ตารางสนาม
                             </h3>
-                            <input type="text" id="scheduleDateInput" class="bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 text-lg font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-50 w-48 text-center shadow-sm cursor-pointer" placeholder="เลือกวันที่">
+                            <input type="text" id="scheduleDateInput" class="bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 text-lg font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-500 w-48 text-center shadow-sm cursor-pointer" placeholder="เลือกวันที่">
                         </div>
                         <div class="flex gap-4 text-[10px] font-bold uppercase tracking-wider flex-wrap">
                             <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-emerald-400"></span> ว่าง</span>
@@ -375,7 +375,7 @@
             <div class="bg-slate-50 p-4 rounded-xl text-left text-sm text-slate-600 mb-6 space-y-3 border border-slate-100">
                 <p class="font-bold flex items-center gap-2"><svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> 1. บันทึกประวัติลงไฟล์ Excel</p>
                 <p class="font-bold flex items-center gap-2"><svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> 2. สำรองข้อมูลรูปสลิปลงไฟล์ JSON</p>
-                <p class="font-bold flex items-center gap-2"><svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg> <span class="text-red-600">3. ลบข้อมูลเก่าออกจากออนไลน์!</span></p>
+                <p class="font-bold flex items-center gap-2"><svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg> <span class="text-red-600 font-bold">3. ลบข้อมูลเก่าออกจากออนไลน์!</span></p>
             </div>
             <div class="flex gap-3">
                 <button onclick="window.closeMaintenanceModal()" class="flex-1 px-4 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-colors">ข้ามไปก่อน</button>
@@ -438,10 +438,10 @@
     </div>
 
     <!-- Report Modal -->
-    <div id="reportModal" class="fixed inset-0 bg-slate-900/90 z-50 hidden items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-white rounded-3xl max-w-4xl w-full p-8 relative mx-2">
-            <button onclick="window.closeModal()" class="no-print absolute top-6 right-6 text-slate-400 z-10 hover:text-slate-700"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
-            <div id="reportSummaryContent" class="space-y-6"></div>
+    <div id="reportModal" class="fixed inset-0 bg-slate-900/90 z-50 hidden items-center justify-center p-2 sm:p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-4xl w-full p-4 sm:p-8 relative mx-1">
+            <button onclick="window.closeModal()" class="no-print absolute top-4 right-4 text-slate-400 z-10 hover:text-slate-700">✕</button>
+            <div id="reportSummaryContent" class="space-y-6 w-full"></div>
         </div>
     </div>
     
@@ -516,8 +516,8 @@
         window.currentUploadId = null;
         window.currentViewingSlipId = null;
         window.itemToDeleteId = null;
-        window.revenueChart = null;
-        window.usageChart = null;
+        window.myRevChart = null; 
+        window.myUsgChart = null; 
         window.pendingMaintenance = null;
         
         let db, auth, app, collectionRef;
@@ -633,7 +633,7 @@
 125/16,สมชัย-เทียมจิตต์ พงศ์พิชญ์พิทักษ์
 125/17,แสงทอง  ชัยสิริโรจน์
 125/18,สุนีย์  ศักดิ์ศรี
-125/19,กิตติวุฒิ วัฒนคำแสง
+125/19,กิตติวุฒิ วัฒคำแสง
 125/20,กลชัย  ไคยฤทธิ์
 125/21,จีราภรณ์ สุรเลิศรังสรรค์
 125/22,นงคราญ ธิติโรจนะวัฒน์
@@ -1317,17 +1317,24 @@
         };
 
         window.selectSlot = function(d, t, c) {
-            if (!window.isLoggedIn) return;
+            if (!window.isLoggedIn) return; // Prevent guest interaction
             const today = window.getThailandDate();
             const nowH = window.getThailandHour();
             const h = parseInt(t.split(':')[0], 10);
+            
             if (window.isPastBookingMode) {
-                if (d > today || (d === today && h > nowH)) return window.showAlert("โหมดบันทึกย้อนหลัง ใช้เลือกได้เฉพาะเวลาที่ผ่านไปแล้ว");
+                if (d > today || (d === today && h > nowH)) {
+                    window.showAlert("โหมดบันทึกย้อนหลัง ใช้เลือกได้เฉพาะเวลาที่ผ่านไปแล้ว");
+                    return;
+                }
             } else {
-                if (d < today || (d === today && h < nowH)) return window.showAlert("ไม่สามารถจองเวลาย้อนหลังได้ กรุณาใช้ปุ่ม 'บันทึกย้อนหลัง'");
+                if (d < today || (d === today && h < nowH)) {
+                    window.showAlert("ไม่สามารถจองเวลาย้อนหลังได้ กรุณาใช้ปุ่ม 'บันทึกย้อนหลัง'");
+                    return;
+                }
             }
-            const fp = document.getElementById('dateInput')._flatpickr;
-            if(fp) fp.setDate(d);
+            
+            document.getElementById('dateInput')._flatpickr.setDate(d);
             document.querySelector('select[name="court"]').value = c;
             document.getElementById('timeSelect').value = t.padStart(5, '0');
             window.updateHourOptions();
@@ -1352,7 +1359,6 @@
                     tr.className = `transition-colors relative ${isP ? 'bg-slate-100/60 opacity-80 border-slate-200' : 'bg-white cursor-pointer hover:bg-slate-50 border-emerald-500'} border-l-4 border-r-4 ${idx===0?'border-t-4':''} ${idx===bks.length-1?'border-b-4':'border-b border-slate-100'}`;
                     
                     tr.onclick = (e) => {
-                        // ป้องกันการทำงานซ้ำซ้อนถ้าคลิกที่ปุ่มปากกา
                         if (e.target.closest('.edit-trigger') && window.isLoggedIn) { window.openEditBookingModal(b.id); return; }
 
                         if (!window.isLoggedIn) {
@@ -1371,7 +1377,6 @@
                             return;
                         }
                         
-                        // ถ้าคลิกในระยะคอลัมน์ที่ 0 ถึง 3 (พื้นที่ทั่วไปของแถว) จะไฮไลท์และเลื่อนจอไปที่ตารางสนาม
                         const td = e.target.closest('td');
                         const cellIndex = td ? td.cellIndex : -1;
                         if (cellIndex >= 0 && cellIndex <= 3) {
@@ -1604,21 +1609,90 @@
              const yTotal = paidList.filter(b => b.date && b.date.startsWith(curY)).reduce((s, b) => s + (Number(b.totalPrice) || 0), 0);
              const uC = new Set(paidList.map(b => b.customerName)).size;
              const mTH = new Array(12).fill(0), mLH = new Array(12).fill(0), mNLH = new Array(12).fill(0);
-             paidList.forEach(b => { if(b.date && b.date.startsWith(curY)) { const m = parseInt(b.date.split('-')[1], 10) - 1, h = Number(b.hours)||0, lh = Number(b.lightHours)||0; mTH[m] += h; mLH[m] += lh; mNLH[m] += (h - lh); } });
-             document.getElementById('reportSummaryContent').innerHTML = `<div class="text-center mb-6"><h2 class="text-2xl font-black text-slate-800">รายงานวิเคราะห์</h2><p class="text-slate-400 text-xs font-bold uppercase mt-1">Makmai Tennis Dashboard</p><p class="text-emerald-600 text-[10px] font-bold mt-2 bg-emerald-50 inline-block px-3 py-1 rounded-full">* คำนวณเฉพาะรายการที่ชำระเงินแล้ว</p></div><div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6"><div class="bg-blue-50 p-6 rounded-2xl text-center"><div class="text-xs font-bold text-blue-400 uppercase">รายได้เดือนนี้</div><div class="text-3xl font-black text-blue-700">฿${mTotal.toLocaleString()}</div></div><div class="bg-indigo-50 p-6 rounded-2xl text-center"><div class="text-xs font-bold text-indigo-400 uppercase">รายได้ปีนี้ (${curY})</div><div class="text-3xl font-black text-indigo-700">฿${yTotal.toLocaleString()}</div></div><div class="bg-emerald-50 p-6 rounded-2xl text-center md:col-span-2"><div class="text-xs font-bold text-emerald-500 uppercase">ผู้ใช้บริการที่ไม่ซ้ำกัน</div><div class="text-3xl font-black text-emerald-700">${uC.toLocaleString()} คน</div></div></div><div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6"><div class="bg-white p-4 rounded-2xl border"><h3 class="text-xs font-bold text-slate-400 text-center">รายได้รายเดือน</h3><canvas id="revenueChart"></canvas></div><div class="bg-white p-4 rounded-2xl border"><h3 class="text-xs font-bold text-slate-400 text-center">สัดส่วนเวลาใช้งาน (ไฟ/ไม่ไฟ)</h3><canvas id="usageChart"></canvas></div></div><div class="pt-6 no-print grid grid-cols-2 gap-4"><button onclick="window.closeModal()" class="w-full bg-slate-200 py-3 rounded-xl font-bold">ปิด</button><button onclick="window.print()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold shadow-lg">พิมพ์รายงาน / PDF</button></div>`;
-             document.title = `Report_MakmaiTennis_${today}`; document.getElementById('reportModal').classList.add('modal-active');
+             
+             paidList.forEach(b => { 
+                 if(b.date && b.date.startsWith(curY)) { 
+                     const m = parseInt(b.date.split('-')[1], 10) - 1;
+                     const h = Number(b.hours) || 0; 
+                     const lh = Number(b.lightHours) || 0; 
+                     mTH[m] += h; 
+                     mLH[m] += lh; 
+                     mNLH[m] += (h - lh); 
+                 } 
+             });
+             
+             document.getElementById('reportSummaryContent').innerHTML = `
+                <div class="text-center mb-6">
+                    <h2 class="text-2xl font-black text-slate-800">รายงานวิเคราะห์</h2>
+                    <p class="text-slate-400 text-xs font-bold uppercase mt-1">Makmai Tennis Dashboard</p>
+                    <p class="text-emerald-600 text-[10px] font-bold mt-2 bg-emerald-50 inline-block px-3 py-1 rounded-full">* คำนวณเฉพาะรายการที่ชำระเงินแล้ว</p>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-blue-50 p-6 rounded-2xl text-center">
+                        <div class="text-xs font-bold text-blue-400 uppercase">รายได้เดือนนี้</div>
+                        <div class="text-3xl font-black text-blue-700">฿${mTotal.toLocaleString()}</div>
+                    </div>
+                    <div class="bg-indigo-50 p-6 rounded-2xl text-center">
+                        <div class="text-xs font-bold text-indigo-400 uppercase">รายได้ปีนี้ (${curY})</div>
+                        <div class="text-3xl font-black text-indigo-700">฿${yTotal.toLocaleString()}</div>
+                    </div>
+                    <div class="bg-emerald-50 p-6 rounded-2xl text-center md:col-span-2">
+                        <div class="text-xs font-bold text-emerald-500 uppercase">ผู้ใช้บริการที่ไม่ซ้ำกัน</div>
+                        <div class="text-3xl font-black text-emerald-700">${uC.toLocaleString()} คน</div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-white p-4 rounded-2xl border">
+                        <h3 class="text-xs font-bold text-slate-400 text-center mb-2">รายได้รายเดือน</h3>
+                        <div class="relative w-full aspect-[4/3]"><canvas id="revenueChart"></canvas></div>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl border">
+                        <h3 class="text-xs font-bold text-slate-400 text-center mb-2">สัดส่วนเวลาใช้งาน (ไฟ/ไม่ไฟ)</h3>
+                        <div class="relative w-full aspect-[4/3]"><canvas id="usageChart"></canvas></div>
+                    </div>
+                </div>
+                <div class="pt-6 no-print grid grid-cols-2 gap-4">
+                    <button onclick="window.closeModal()" class="w-full bg-slate-200 py-3 rounded-xl font-bold">ปิด</button>
+                    <button onclick="window.print()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold shadow-lg">พิมพ์รายงาน / PDF</button>
+                </div>
+             `;
+             
+             document.title = `Report_MakmaiTennis_${today}`; 
+             document.getElementById('reportModal').classList.add('modal-active');
+             
              setTimeout(() => { 
-                 const ctxRev = document.getElementById('revenueChart');
-                 if(window.revenueChart) window.revenueChart.destroy();
-                 if (ctxRev) {
-                     window.revenueChart = new Chart(ctxRev, { type: 'bar', data: { labels: thaiMonths, datasets: [{ label: 'รายได้ (บาท)', data: mTH.map((_, i) => paidList.filter(b => b.date && b.date.startsWith(`${curY}-${String(i+1).padStart(2,'0')}`)).reduce((s, b) => s + (Number(b.totalPrice) || 0), 0)), backgroundColor: '#3b82f6', borderRadius: 4 }] }, options: { responsive: true, plugins: { legend: { display: false } } } });
-                 }
-                 const ctxUsg = document.getElementById('usageChart');
-                 if(window.usageChart) window.usageChart.destroy();
-                 if (ctxUsg) {
-                     window.usageChart = new Chart(ctxUsg, { type: 'bar', data: { labels: thaiMonths, datasets: [{ label: 'เปิดไฟ (ชม.)', data: mLH, backgroundColor: '#f97316', stack: 'S0' }, { label: 'ไม่เปิดไฟ (ชม.)', data: mNLH, backgroundColor: '#10b981', stack: 'S0' }] }, options: { responsive: true, plugins: { legend: { position: 'bottom' } }, scales: { x: { stacked: true }, y: { stacked: true } } } });
-                 }
-             }, 100);
+                 const revCtx = document.getElementById('revenueChart');
+                 const usgCtx = document.getElementById('usageChart');
+                 if(!revCtx || !usgCtx) return;
+                 
+                 if(window.myRevChart) window.myRevChart.destroy();
+                 window.myRevChart = new Chart(revCtx, { 
+                     type: 'bar', 
+                     data: { 
+                         labels: thaiMonths, 
+                         datasets: [{ 
+                             label: 'รายได้ (บาท)', 
+                             data: mTH.map((_, i) => paidList.filter(b => b.date && b.date.startsWith(`${curY}-${String(i+1).padStart(2,'0')}`)).reduce((s, b) => s + (Number(b.totalPrice) || 0), 0)), 
+                             backgroundColor: '#3b82f6', 
+                             borderRadius: 4 
+                         }] 
+                     }, 
+                     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } 
+                 });
+                 
+                 if(window.myUsgChart) window.myUsgChart.destroy();
+                 window.myUsgChart = new Chart(usgCtx, { 
+                     type: 'bar', 
+                     data: { 
+                         labels: thaiMonths, 
+                         datasets: [
+                             { label: 'เปิดไฟ (ชม.)', data: mLH, backgroundColor: '#f97316', stack: 'S0' }, 
+                             { label: 'ไม่เปิดไฟ (ชม.)', data: mNLH, backgroundColor: '#10b981', stack: 'S0' }
+                         ] 
+                     }, 
+                     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { x: { stacked: true }, y: { stacked: true } } } 
+                 });
+             }, 300);
         };
 
         window.backupData = async () => {
@@ -1632,20 +1706,49 @@
 
         window.triggerRestore = () => document.getElementById('restoreInput').click();
         window.importBackupFile = async (event) => {
-            const f = event.target.files[0]; if (!f) return;
-            const confirmed = await window.customConfirm("⚠️ กู้คืนข้อมูลจะ 'ทับข้อมูลทั้งหมดในระบบออนไลน์'\nแน่ใจหรือไม่?", "ยืนยันการกู้คืน", true);
-            if (!confirmed) { event.target.value = ''; return; }
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            let importMode = '';
+            
+            if (confirm("การนำเข้าข้อมูล (Import):\n\nกด [ตกลง/OK] เพื่อ 'รวมข้อมูล' จากไฟล์นี้เข้ากับของเดิมที่มีอยู่ในระบบออนไลน์ (ข้อมูลเก่าไม่หาย)\n\nกด [ยกเลิก/Cancel] หากต้องการล้างของเดิมทิ้งแล้วเขียนทับใหม่")) {
+                importMode = 'merge';
+            } else {
+                if (confirm("⚠️ คำเตือน: คุณแน่ใจหรือไม่ว่าต้องการ 'ล้างข้อมูลปัจจุบันทั้งหมดบนออนไลน์' และแทนที่ด้วยไฟล์นี้?")) {
+                    importMode = 'replace';
+                } else {
+                    event.target.value = ''; 
+                    return;
+                }
+            }
+            
             const r = new FileReader();
             r.onload = async (e) => {
                 try {
-                    const data = JSON.parse(e.target.result); if (!Array.isArray(data)) throw new Error("รูปแบบไม่ถูกต้อง");
+                    const data = JSON.parse(e.target.result); 
+                    if (!Array.isArray(data)) throw new Error("รูปแบบไม่ถูกต้อง");
                     if (!collectionRef) return window.showAlert("❌ เชื่อมต่อฐานข้อมูลไม่สำเร็จ");
-                    const snap = await getDocs(collectionRef); for (const d of snap.docs) await deleteDoc(d.ref);
-                    for (const item of data) { if(!item.id) item.id = Date.now().toString()+Math.random().toString(36).substr(2,4); await setDoc(doc(collectionRef, String(item.id)), item); }
-                    window.showAlert(`อัปโหลดสำเร็จ! กรุณารอสักครู่...`); window.closeModal();
-                } catch (err) { window.showAlert("เกิดข้อผิดพลาด: " + err.message); } finally { event.target.value = ''; }
+                    
+                    if (importMode === 'replace') {
+                        window.showAlert("กำลังล้างข้อมูลเก่า กรุณารอสักครู่...");
+                        const snap = await getDocs(collectionRef); 
+                        for (const d of snap.docs) await deleteDoc(d.ref);
+                    }
+                    
+                    window.showAlert(`กำลังนำเข้าข้อมูล ${data.length} รายการ...`);
+                    for (const item of data) { 
+                        if(!item.id) item.id = Date.now().toString()+Math.random().toString(36).substr(2,4); 
+                        await setDoc(doc(collectionRef, String(item.id)), item); 
+                    }
+                    window.showAlert(`อัปโหลดสำเร็จ! กรุณารอสักครู่...`); 
+                    window.closeModal();
+                } catch (err) { 
+                    window.showAlert("เกิดข้อผิดพลาด: " + err.message); 
+                } finally { 
+                    event.target.value = ''; 
+                }
             };
-            r.readAsText(f);
+            r.readAsText(file);
         };
 
         window.printWeeklySchedule = () => {
@@ -1788,7 +1891,7 @@
                 existing.date = date; existing.court = court; existing.time = time; existing.hours = hours; existing.lightHours = implicitLightHours; existing.totalPrice = totalPrice; existing.week = weekStr;
                 await setDoc(doc(collectionRef, String(existing.id)), existing);
                 window.closeEditBookingModal(); 
-                window.syncScheduleToBooking(existing, false); // แก้ไขสำเร็จ ไม่ต้องเลื่อนจอ (false = ไม่ scroll)
+                window.syncScheduleToBooking(existing, false); 
                 window.showAlert("แก้ไขวัน-เวลาสำเร็จออนไลน์");
             } catch (err) { console.error(err); window.showAlert("เกิดข้อผิดพลาด: " + err.message); } finally { btn.disabled = false; btn.innerHTML = 'บันทึกการแก้ไข'; }
         };
