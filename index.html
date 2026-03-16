@@ -49,6 +49,13 @@
         .slot-past { background-color: #f1f5f9; color: #94a3b8; cursor: not-allowed; }
         .slot-played { background-color: #FFFBEB; color: #92400E; border: 1px solid #FCD34D; }
         
+        .slot-highlight { animation: pulse-ring 2s infinite; }
+        @keyframes pulse-ring {
+            0% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.7); }
+            70% { box-shadow: 0 0 0 6px rgba(251, 191, 36, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0); }
+        }
+        
         @media print {
             @page { margin: 0; size: auto; }
             body { margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; background-color: white; }
@@ -844,7 +851,12 @@
         };
         window.getThailandDate = function() { const p = window.getThailandTimeParts(); return `${p.year}-${p.month}-${p.day}`; };
         window.getThailandHour = function() { return parseInt(window.getThailandTimeParts().hour, 10); };
-        window.parseLocalDate = function(s) { if (!s) return new Date(); const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+        window.parseLocalDate = function(s) { 
+            if (!s) return new Date(); 
+            if (s instanceof Date) return s; 
+            const [y, m, d] = s.split('-').map(Number); 
+            return new Date(y, m - 1, d); 
+        };
         window.getWeekString = function(s) { const d = window.parseLocalDate(s); d.setHours(0,0,0,0); d.setDate(d.getDate() + 4 - (d.getDay() || 7)); return `${d.getFullYear()}-W${String(Math.ceil((((d - new Date(d.getFullYear(), 0, 1)) / 86400000) + 1) / 7)).padStart(2, '0')}`; };
         window.getStartOfWeek = function(s) { if(!s) return new Date(); const [y, w] = s.split('-W').map(Number); const d = new Date(y, 0, 4); d.setDate(d.getDate() - (d.getDay() || 7) + 1 + ((w - 1) * 7)); d.setHours(0,0,0,0); return d; };
         window.formatThaiDate = function(s) { if (!s) return "-"; const d = window.parseLocalDate(s); return `${d.getDate()} ${thaiMonths[d.getMonth()]} ${d.getFullYear()}`; };
@@ -1050,7 +1062,12 @@
                 if (tarW < realW) return window.showAlert("ผู้เยี่ยมชมไม่สามารถดูย้อนหลังได้"); 
                 if (tarW > maxW) return window.showAlert("ผู้เยี่ยมชมสามารถดูตารางล่วงหน้าได้ถึงสัปดาห์หน้าเท่านั้น"); 
             }
-            window.currentFilterWeek = tarW; window.updateWeekLabel(); const fp = document.getElementById('scheduleDateInput')?._flatpickr; if (fp) fp.setDate(dTar, false); window.renderAll();
+            window.currentFilterWeek = tarW; window.updateWeekLabel(); const fp = document.getElementById('scheduleDateInput')?._flatpickr; 
+            if (fp) {
+                const tzStr = `${dTar.getFullYear()}-${String(dTar.getMonth()+1).padStart(2,'0')}-${String(dTar.getDate()).padStart(2,'0')}`;
+                fp.setDate(tzStr, false); 
+            }
+            window.renderAll();
         };
 
         window.goToCurrentWeek = function() { 
@@ -1060,7 +1077,7 @@
 
         window.syncDateToSchedule = function() { const d = document.getElementById('dateInput').value; window.currentFilterWeek = window.getWeekString(d); window.updateWeekLabel(); window.renderAll(); };
         window.syncScheduleToBooking = function(b) { window.highlightedBookingId = b.id; const fp = document.getElementById('scheduleDateInput')?._flatpickr; if(fp) fp.setDate(b.date, false); window.renderSchedule(); };
-        window.updateWeekLabel = function() { const d = window.getStartOfWeek(window.currentFilterWeek); const display = document.getElementById('weekDisplay'); if (display) display.innerText = `อาทิตย์ที่: ${window.formatThaiDate(d.toISOString().split('T')[0])}`; };
+        window.updateWeekLabel = function() { const d = window.getStartOfWeek(window.currentFilterWeek); const display = document.getElementById('weekDisplay'); if (display) display.innerText = `อาทิตย์ที่: ${window.formatThaiDate(d)}`; };
 
         // --- FIREBASE LOGIC ---
         async function initAuth() {
@@ -1173,27 +1190,6 @@
                 const slip = await compressImage(file), b = window.allBookingsCache.find(x => String(x.id) === String(window.currentUploadId));
                 if (b) { b.slip = slip; await setDoc(doc(collectionRef, String(b.id)), b); if (document.getElementById('slipModal').classList.contains('modal-active')) document.getElementById('slipPreview').src = slip; window.showAlert("อัพโหลดสลิปเรียบร้อย"); }
             } catch (err) { window.showAlert("อัปโหลดไม่สำเร็จ"); } finally { e.target.value = ''; window.currentUploadId = null; }
-        };
-
-        // --- INIT & MISC ---
-        window.togglePastBookingMode = () => {
-            window.isPastBookingMode = !window.isPastBookingMode;
-            const fp = document.getElementById('dateInput')._flatpickr;
-            const title = document.getElementById('formTitle'), btn = document.getElementById('togglePastModeBtn'), slipLabel = document.getElementById('slipFileName');
-            const todayStr = window.getThailandDate();
-            
-            if (window.isPastBookingMode) {
-                title.innerText = "บันทึกย้อนหลัง"; btn.classList.replace("bg-slate-100", "bg-purple-100"); btn.classList.replace("text-slate-600", "text-purple-700");
-                fp.set("minDate", null); fp.set("maxDate", todayStr); fp.set("disable", []);
-                slipLabel.innerHTML = "อัพโหลดสลิปจ่ายเงิน <span class='text-red-500'>*(บังคับ)</span>";
-            } else {
-                title.innerText = "จองคอร์ตเทนนิส"; btn.classList.replace("bg-purple-100", "bg-slate-100"); btn.classList.replace("text-purple-700", "text-slate-600");
-                const maxDateObj = new Date(); maxDateObj.setDate(maxDateObj.getDate() + 7);
-                const maxBS = `${maxDateObj.getFullYear()}-${String(maxDateObj.getMonth()+1).padStart(2,'0')}-${String(maxDateObj.getDate()).padStart(2,'0')}`;
-                fp.set("minDate", todayStr); fp.set("maxDate", null);
-                fp.set("disable", [function(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}` > maxBS; }]);
-                slipLabel.innerHTML = "อัพโหลดสลิปจ่ายเงิน";
-            }
         };
 
         const init = function() {
