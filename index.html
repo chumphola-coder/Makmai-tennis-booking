@@ -83,6 +83,12 @@
     <input type="file" id="restoreInput" class="hidden" accept=".json" onchange="window.importBackupFile(event)">
 
     <div class="max-w-[1400px] mx-auto w-full">
+        <!-- Maintenance Warning Banner -->
+        <div id="maintenanceWarningBanner" class="hidden bg-red-600 text-white text-center py-3 px-4 font-bold text-sm sm:text-base animate-pulse shadow-md mb-6 rounded-xl flex items-center justify-center gap-2 border-2 border-red-400">
+            <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            <span>⚠️ ถึงกำหนดบำรุงรักษาฐานข้อมูลรายไตรมาส! กรุณาเข้าสู่ระบบ และ "ปลดล็อกผู้ดูแล (Admin)" เพื่อทำการ Backup และลบข้อมูลเก่าออก</span>
+        </div>
+
         <!-- Header -->
         <header class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6 no-print">
             <div class="flex-1 w-full flex flex-col items-center md:items-start text-center md:text-left">
@@ -117,10 +123,6 @@
                     <button onclick="window.openReportModal()" class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 flex items-center gap-2 transition-all shadow-lg shadow-indigo-200">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                         รายงานสรุป
-                    </button>
-                    <button id="testMaintenanceBtn" onclick="window.forceTestMaintenance()" class="hidden px-4 py-2 bg-purple-600 text-white rounded-xl text-sm font-bold hover:bg-purple-700 transition-all flex items-center gap-2 ml-2 shadow-lg shadow-purple-200">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
-                        ทดสอบล้างข้อมูล
                     </button>
                     <button onclick="window.toggleAdminMode()" id="adminBtn" class="px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-xl text-sm font-bold hover:bg-red-100 transition-all flex items-center gap-2 ml-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
@@ -1210,7 +1212,6 @@
             const maxS = `${nextWE.getFullYear()}-${String(nextWE.getMonth()+1).padStart(2,'0')}-${String(nextWE.getDate()).padStart(2,'0')}`;
             
             const ad = document.getElementById('adminBtn'); 
-            const testBtn = document.getElementById('testMaintenanceBtn');
 
             if (window.isLoggedIn) {
                 b.innerHTML = '🚪 ออกจากระบบ'; b.classList.replace('bg-slate-800', 'bg-red-600'); b.classList.replace('hover:bg-slate-700', 'hover:bg-red-700');
@@ -1221,7 +1222,6 @@
                         ad.className = 'px-4 py-2 bg-red-600 text-white border border-red-700 rounded-xl text-sm font-bold hover:bg-red-700 transition-all flex items-center gap-2 ml-2 shadow-lg shadow-red-200';
                         ad.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path></svg> 🔓 ปลดล็อกแล้ว (เปิด)';
                     }
-                    if (testBtn) testBtn.classList.remove('hidden');
                     
                     if (fp) { fp.set('minDate', null); fp.set('maxDate', null); }
                     window.checkAutoMaintenance(); 
@@ -1230,7 +1230,6 @@
                         ad.className = 'px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-xl text-sm font-bold hover:bg-red-100 transition-all flex items-center gap-2 ml-2';
                         ad.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg> 🔒 ปลดล็อกผู้ดูแล';
                     }
-                    if (testBtn) testBtn.classList.add('hidden');
                     
                     if (fp) { fp.set('minDate', minS); fp.set('maxDate', maxS); }
                 }
@@ -1245,7 +1244,6 @@
                     ad.className = 'px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-xl text-sm font-bold hover:bg-red-100 transition-all flex items-center gap-2 ml-2';
                     ad.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg> 🔒 ปลดล็อกผู้ดูแล';
                 }
-                if (testBtn) testBtn.classList.add('hidden');
 
                 if (fp) { fp.set('minDate', minS); fp.set('maxDate', maxS); }
                 const curW = window.getWeekString(today), nextW = window.getWeekString(maxS);
@@ -1428,26 +1426,38 @@
             }
         };
 
-        // --- AUTO MAINTENANCE SYSTEM (QUARTERLY / TEST) ---
+        // --- AUTO MAINTENANCE SYSTEM (QUARTERLY) ---
         
-        window.forceTestMaintenance = function() {
-            if (!window.adminMode) return window.showAlert("❌ เฉพาะผู้ดูแลระบบเท่านั้น");
+        window.updateMaintenanceWarning = function() {
+            const p = window.getThailandTimeParts();
+            const y = parseInt(p.year, 10);
+            const m = parseInt(p.month, 10);
             
-            const allRecords = window.allBookingsCache;
-            
-            if (allRecords.length === 0) {
-                return window.showAlert("⚠️ ไม่มีข้อมูลในระบบให้ทำการล้าง");
+            let currentQ = Math.ceil(m / 3);
+            let prevQ = currentQ - 1;
+            let prevYear = y;
+            if (prevQ === 0) {
+                prevQ = 4;
+                prevYear = y - 1;
             }
 
-            window.pendingMaintenance = {
-                flagKey: 'test_maintenance_flag',
-                title: `ทดสอบระบบ (ข้อมูลทั้งหมด ${allRecords.length} รายการ)`,
-                records: allRecords
-            };
+            const flagKey = `makmai_maintenance_done_${prevYear}_Q${prevQ}`;
+            const banner = document.getElementById('maintenanceWarningBanner');
+            if (!banner) return;
             
-            document.getElementById('maintenanceTitle').innerText = `จำลองการสำรองข้อมูลและล้างฐานข้อมูล`;
-            document.getElementById('maintenanceCount').innerText = `${allRecords.length} รายการ`;
-            document.getElementById('autoMaintenanceModal').classList.add('modal-active');
+            if (!localStorage.getItem(flagKey)) {
+                const cutoffMonth = (currentQ - 1) * 3 + 1;
+                const cutoffDateStr = `${y}-${String(cutoffMonth).padStart(2, '0')}-01`;
+                const oldRecords = window.allBookingsCache.filter(b => b.date < cutoffDateStr);
+                
+                if (oldRecords.length > 0) {
+                    banner.classList.remove('hidden');
+                } else {
+                    banner.classList.add('hidden');
+                }
+            } else {
+                banner.classList.add('hidden');
+            }
         };
 
         window.checkAutoMaintenance = function() {
@@ -1536,6 +1546,7 @@
                 // Finished
                 localStorage.setItem(window.pendingMaintenance.flagKey, 'true');
                 window.closeMaintenanceModal();
+                window.updateMaintenanceWarning();
                 window.showAlert("✅ การบำรุงรักษาฐานข้อมูลเสร็จสมบูรณ์เรียบร้อยแล้ว");
                 
             } catch(e) {
@@ -1833,9 +1844,10 @@
                 await signInAnonymously(auth);
                 onSnapshot(collectionRef, (snap) => {
                     window.allBookingsCache = []; snap.forEach(d => window.allBookingsCache.push(d.data()));
-                    autoDeletePastUnpaid();
+                    window.autoDeletePastUnpaid();
                     window.allBookingsCache.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
                     window.renderAll();
+                    window.updateMaintenanceWarning();
                     const s = document.getElementById('customerHistory'); 
                     if(s) {
                         s.innerHTML = '<option value="">▼ เลือกรายชื่อเดิม</option>';
