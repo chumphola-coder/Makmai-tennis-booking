@@ -1194,10 +1194,10 @@
         };
 
         // --- AUTH & ADMIN MODES ---
-        window.toggleLogin = function() {
+        window.toggleLogin = async function() {
             if (window.isLoggedIn) { window.isLoggedIn = window.adminMode = false; window.updateLoginUI(); window.showAlert("ออกจากระบบแล้ว"); }
             else {
-                const p = prompt("กรุณาใส่รหัสผ่านสมาชิก:");
+                const p = await window.customPrompt("กรุณาใส่รหัสผ่านสมาชิก:");
                 if (p === "Admin125/000") { window.isLoggedIn = true; window.updateLoginUI(); window.showAlert("เข้าสู่ระบบสำเร็จ"); }
                 else if (p !== null) window.showAlert("❌ รหัสไม่ถูกต้อง");
             }
@@ -1235,10 +1235,10 @@
             window.renderAll();
         };
 
-        window.toggleAdminMode = function() {
+        window.toggleAdminMode = async function() {
             if (!window.isLoggedIn) return window.showAlert("กรุณาเข้าสู่ระบบก่อน");
             if (!window.adminMode) {
-                const p = prompt("รหัสผู้ดูแล:");
+                const p = await window.customPrompt("รหัสผู้ดูแล:");
                 if (p === "Mtennis") {
                     window.adminMode = true;
                     const btn = document.getElementById('adminBtn'); btn.classList.replace('bg-red-50', 'bg-red-600'); btn.classList.replace('text-red-600', 'text-white'); btn.innerHTML = '🔓 ปลดล็อกแล้ว (เปิด)';
@@ -1568,6 +1568,155 @@
                 btn.disabled = false;
                 btn.innerText = "เริ่มดำเนินการ";
             }
+        };
+
+        // --- RESTORED MISSING BOOKING FUNCTIONS ---
+        window.deleteBooking = (id) => { const b = window.allBookingsCache.find(x => String(x.id) === String(id)); if (b && window.isBookingPast(b) && !window.adminMode) return window.showAlert("❌ ลบรายการในอดีตไม่ได้ (ต้องเปิดโหมดแอดมิน)"); window.itemToDeleteId = b?b.id:id; document.getElementById('confirmModal').classList.add('modal-active'); };
+        document.getElementById('confirmDeleteBtn').onclick = async () => { if (window.itemToDeleteId === null) return; try { await deleteDoc(doc(collectionRef, String(window.itemToDeleteId))); window.showAlert("ลบรายการจองออนไลน์เรียบร้อย"); window.closeConfirmModal(); } catch (err) { window.showAlert("ลบไม่ได้: " + err.message); } };
+
+        const compressImage = (file) => {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader(); reader.onerror = () => reject(new Error("อ่านไฟล์ไม่ได้")); reader.readAsDataURL(file);
+                reader.onload = (e) => {
+                    const img = new Image(); img.onerror = () => reject(new Error("ไฟล์ไม่ใช่รูปภาพ")); img.src = e.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas'); const MAX = 600; let w = img.width, h = img.height;
+                        if (w > h) { if (w > MAX) { h *= MAX / w; w = MAX; } } else { if (h > MAX) { w *= MAX / h; h = MAX; } }
+                        canvas.width = w; canvas.height = h; canvas.getContext('2d').drawImage(img, 0, 0, w, h); resolve(canvas.toDataURL('image/jpeg', 0.6));
+                    };
+                };
+            });
+        };
+
+        document.getElementById('bookingForm').onsubmit = async (e) => {
+            e.preventDefault(); const btn = document.getElementById('submitBtn'); const fd = new FormData(e.target);
+            try {
+                btn.disabled = true; btn.innerHTML = '<span>กำลังบันทึก...</span>';
+                const date = fd.get('date'), time = fd.get('time'), startH = parseInt(time.split(':')[0], 10), hours = parseInt(fd.get('hours'), 10), cleanAddress = window.normalizeAddress(fd.get('address')), weekStr = window.getWeekString(date), finalOwnerName = (fd.get('ownerName1') + ' ' + fd.get('ownerName2')).trim(), todayThaiStr = window.getThailandDate(), nowH = window.getThailandHour(), file = document.getElementById('slipInput').files[0], isCurrentHour = (date === todayThaiStr && startH === nowH);
+
+                if (window.isPastBookingMode) {
+                    if (date > todayThaiStr || (date === todayThaiStr && startH > nowH)) return window.showAlert("❌ โหมดบันทึกย้อนหลัง ใช้สำหรับเวลาที่ผ่านไปแล้วเท่านั้น");
+                    if (!file) return window.showAlert("⚠️ จำเป็นต้องอัพโหลดสลิปชำระเงินเพื่อยืนยัน");
+                } else {
+                    if (date < todayThaiStr || (date === todayThaiStr && startH < nowH)) return window.showAlert("❌ ไม่สามารถจองเวลาย้อนหลังได้ กรุณาใช้ปุ่ม 'บันทึกย้อนหลัง'");
+                    if (isCurrentHour && !file) return window.showAlert("⚠️ การจองคอร์ตเล่นทันที จำเป็นต้องอัพโหลดสลิปด้วย");
+                    if (date > todayThaiStr) {
+                        if (window.allBookingsCache.filter(b => window.normalizeAddress(b.address) === cleanAddress && b.date > todayThaiStr).length >= 3) return window.showAlert(`❌ บ้านเลขที่ 125/${cleanAddress} จองล่วงหน้าเต็มโควต้า 3 ครั้งแล้ว`);
+                    }
+                }
+
+                const requested = Array.from({length: hours}, (_, i) => startH + i);
+                if (window.allBookingsCache.filter(b => b.date === date && b.court === fd.get('court')).some(b => requested.some(s => s >= parseInt((b.time || "00").split(':')[0], 10) && s < parseInt((b.time || "00").split(':')[0], 10) + Number(b.hours || 1)))) return window.showAlert("❌ ช่วงเวลานี้ถูกจองแล้ว!");
+
+                const slip = file ? await compressImage(file) : null;
+                let implicitLightHours = 0, totalPrice = 0;
+                for(let i = 0; i < hours; i++) { if (startH + i >= 18) { totalPrice += 150; implicitLightHours++; } else totalPrice += 100; }
+                const newId = Date.now().toString() + Math.random().toString(36).substr(2, 4);
+
+                if (!collectionRef) return window.showAlert("❌ ฐานข้อมูลยังไม่ได้เชื่อมต่อ");
+                await setDoc(doc(collectionRef, newId), { id: newId, date, court: fd.get('court'), time: time, hours: hours, lightHours: implicitLightHours, customerName: fd.get('customerName'), phoneNumber: fd.get('phoneNumber'), address: cleanAddress, ownerName: finalOwnerName, totalPrice: totalPrice, timestamp: Date.now(), week: weekStr, slip });
+                
+                e.target.reset(); window.updateFileName({files:[]}); window.showAlert(`บันทึก${window.isPastBookingMode ? 'ย้อนหลัง' : 'การจอง'}สำเร็จออนไลน์`);
+                
+                if (window.isPastBookingMode) window.togglePastBookingMode();
+                else {
+                    const fp = document.getElementById('dateInput')._flatpickr; if (fp) fp.setDate(todayThaiStr);
+                    const nH = window.getThailandHour(); if(nH >= 6 && nH <= 20) document.getElementById('timeSelect').value = String(nH).padStart(2, '0') + ":00";
+                    window.updateHourOptions();
+                }
+                window.syncDateToSchedule();
+            } catch (err) { console.error(err); window.showAlert("เกิดข้อผิดพลาด: " + err.message); } finally { btn.disabled = false; btn.innerHTML = '<span>ยืนยันการจอง</span>'; }
+        };
+
+        window.openEditBookingModal = (id) => {
+            const b = window.allBookingsCache.find(x => String(x.id) === String(id)); if (!b) return;
+            const p = window.getThailandTimeParts();
+            const nowDateTime = new Date(p.year, parseInt(p.month,10)-1, p.day, parseInt(p.hour,10), parseInt(p.minute,10), 0);
+            const bStartH = parseInt((b.time||"00:00").split(':')[0], 10);
+            const bookingDateTime = new Date(b.date.split('-')[0], parseInt(b.date.split('-')[1],10)-1, b.date.split('-')[2], bStartH, 0, 0);
+            const diffHours = (bookingDateTime.getTime() - nowDateTime.getTime()) / (1000 * 60 * 60);
+
+            if (b.slip && diffHours < 24 && !window.adminMode) return window.showAlert("❌ ไม่สามารถแก้ไขได้ (รายการที่ชำระเงินแล้วต้องแจ้งล่วงหน้าอย่างน้อย 24 ชั่วโมงก่อนเวลาเริ่มเล่น)");
+
+            document.getElementById('editBookingId').value = b.id;
+            const editDateFp = document.getElementById('editDateInput')._flatpickr; 
+            if (editDateFp) { 
+                if (window.adminMode) {
+                    editDateFp.set('minDate', null); editDateFp.set('disable', []); 
+                } else {
+                    editDateFp.set('minDate', window.getThailandDate());
+                    const maxDateObj = new Date(p.year, parseInt(p.month, 10)-1, p.day); maxDateObj.setDate(maxDateObj.getDate() + 7);
+                    const maxBookingDateStr = `${maxDateObj.getFullYear()}-${String(maxDateObj.getMonth()+1).padStart(2,'0')}-${String(maxDateObj.getDate()).padStart(2,'0')}`;
+                    editDateFp.set('disable', [function(date) { return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}` > maxBookingDateStr; }]);
+                }
+                editDateFp.setDate(b.date); 
+            }
+            document.getElementById('editCourt').value = b.court;
+            let timeHtml = ''; for(let i=6; i<=20; i++) timeHtml += `<option value="${String(i).padStart(2,'0')}:00">${i}:00 น.</option>`;
+            document.getElementById('editTime').innerHTML = timeHtml; document.getElementById('editTime').value = (b.time||"").padStart(5, '0');
+            window.updateEditHourOptions(); document.getElementById('editHours').value = b.hours;
+            document.getElementById('editBookingModal').classList.add('modal-active');
+        };
+
+        document.getElementById('editBookingForm').onsubmit = async (e) => {
+            e.preventDefault(); const btn = document.querySelector('#editBookingForm button[type="submit"]'); const fd = new FormData(e.target);
+            try {
+                btn.disabled = true; btn.innerHTML = 'กำลังบันทึก...';
+                const idValue = document.getElementById('editBookingId').value, date = fd.get('date'), court = fd.get('court'), time = fd.get('time'), hours = parseInt(fd.get('hours'), 10), startH = parseInt(time.split(':')[0], 10), weekStr = window.getWeekString(date), todayThaiStr = window.getThailandDate(), nowH = window.getThailandHour();
+                
+                if (!window.adminMode && (date < todayThaiStr || (date === todayThaiStr && startH < nowH))) return window.showAlert("❌ เปลี่ยนเป็นเวลาย้อนหลังไม่ได้");
+                const existing = window.allBookingsCache.find(x => String(x.id) === idValue); if (!existing) return;
+                const cleanAddress = window.normalizeAddress(existing.address);
+
+                if (date > todayThaiStr && !window.adminMode) {
+                    if (window.allBookingsCache.filter(b => String(b.id) !== idValue && window.normalizeAddress(b.address) === cleanAddress && b.date > todayThaiStr).length >= 3) return window.showAlert(`❌ บ้านเลขที่ 125/${cleanAddress} จองล่วงหน้าเต็มโควต้าแล้ว`);
+                }
+
+                const requested = Array.from({length: hours}, (_, i) => startH + i);
+                if (window.allBookingsCache.filter(b => String(b.id) !== idValue && b.date === date && b.court === court).some(b => requested.some(s => s >= parseInt((b.time || "00").split(':')[0], 10) && s < parseInt((b.time || "00").split(':')[0], 10) + Number(b.hours || 1)))) return window.showAlert("❌ ช่วงเวลานี้ถูกจองแล้ว!");
+
+                let implicitLightHours = 0, totalPrice = 0;
+                for(let i = 0; i < hours; i++) { if (startH + i >= 18) { totalPrice += 150; implicitLightHours++; } else totalPrice += 100; }
+                
+                existing.date = date; existing.court = court; existing.time = time; existing.hours = hours; existing.lightHours = implicitLightHours; existing.totalPrice = totalPrice; existing.week = weekStr;
+                await setDoc(doc(collectionRef, String(existing.id)), existing);
+                window.closeEditBookingModal(); 
+                window.syncScheduleToBooking(existing, false); 
+                window.showAlert("แก้ไขวัน-เวลาสำเร็จออนไลน์");
+            } catch (err) { console.error(err); window.showAlert("เกิดข้อผิดพลาด: " + err.message); } finally { btn.disabled = false; btn.innerHTML = 'บันทึกการแก้ไข'; }
+        };
+
+        window.viewSlipFromId = (id) => { const b = window.allBookingsCache.find(x => String(x.id) === String(id)); if(b && b.slip) { window.currentViewingSlipId = id; document.getElementById('slipPreview').src = b.slip; const isP = window.isBookingPast(b); const btnC = document.getElementById('btnChangeSlipModal'), btnR = document.getElementById('btnRemoveSlipModal'); if (isP && !window.adminMode) { btnC.style.display = 'none'; btnR.style.display = 'none'; } else { btnC.style.display = 'flex'; btnR.style.display = 'flex'; } document.getElementById('slipModal').classList.add('modal-active'); } else window.showAlert("ไม่พบรูปสลิป"); };
+        window.changeSlipInModal = async () => { 
+            const b = window.allBookingsCache.find(x => String(x.id) === String(window.currentViewingSlipId)); 
+            if (b && window.isBookingPast(b) && !window.adminMode) return window.showAlert("❌ เปลี่ยนสลิปไม่ได้ (เลยเวลาแล้ว)"); 
+            const confirmed = await window.customConfirm("เปลี่ยนรูปสลิปใช่หรือไม่?", "ยืนยันการเปลี่ยนรูป");
+            if (confirmed) { 
+                window.currentUploadId = window.currentViewingSlipId; 
+                document.getElementById('updateSlipInput').click(); 
+            } 
+        };
+        window.triggerUploadSlip = (id) => { const b = window.allBookingsCache.find(x => String(x.id) === String(id)); if (b && window.isBookingPast(b) && !window.adminMode) return window.showAlert("❌ อัปโหลดสลิปไม่ได้ (เลยเวลาแล้ว)"); window.currentUploadId = id; document.getElementById('updateSlipInput').click(); };
+        window.removeSlipInModal = () => { if (!window.currentViewingSlipId) return; window.removeSlip(window.currentViewingSlipId, true); };
+        window.removeSlip = async (id, fromM = false) => { 
+            const b = window.allBookingsCache.find(x => String(x.id) === String(id)); 
+            if (b && window.isBookingPast(b) && !window.adminMode) return window.showAlert("❌ ลบสลิปไม่ได้ (เลยเวลาแล้ว)"); 
+            const confirmed = await window.customConfirm("⚠️ ลบสลิปและเปลี่ยนเป็น 'ค้างชำระ'?", "ยืนยันการลบสลิป", true);
+            if (!confirmed) return; 
+            try { 
+                b.slip = ""; 
+                await setDoc(doc(collectionRef, String(b.id)), b); 
+                if (fromM) { window.closeModal(); document.getElementById('slipPreview').src = ''; } 
+                window.showAlert("ลบสลิปเรียบร้อย"); 
+            } catch (e) { window.showAlert("ลบสลิปไม่สำเร็จ"); } 
+        };
+        
+        document.getElementById('updateSlipInput').onchange = async (e) => {
+            const file = e.target.files[0]; if (!file || !window.currentUploadId) return;
+            try {
+                const slip = await compressImage(file), b = window.allBookingsCache.find(x => String(x.id) === String(window.currentUploadId));
+                if (b) { b.slip = slip; await setDoc(doc(collectionRef, String(b.id)), b); if (document.getElementById('slipModal').classList.contains('modal-active')) document.getElementById('slipPreview').src = slip; window.showAlert("อัพโหลดสลิปเรียบร้อย"); }
+            } catch (err) { window.showAlert("อัปโหลดไม่สำเร็จ"); } finally { e.target.value = ''; window.currentUploadId = null; }
         };
 
         // --- FIREBASE LOGIC ---
