@@ -1195,10 +1195,21 @@
 
         // --- AUTH & ADMIN MODES ---
         window.toggleLogin = async function() {
-            if (window.isLoggedIn) { window.isLoggedIn = window.adminMode = false; window.updateLoginUI(); window.showAlert("ออกจากระบบแล้ว"); }
+            if (window.isLoggedIn) { 
+                window.isLoggedIn = window.adminMode = false; 
+                localStorage.removeItem('makmai_session');
+                localStorage.removeItem('makmai_admin');
+                window.updateLoginUI(); 
+                window.showAlert("ออกจากระบบแล้ว"); 
+            }
             else {
                 const p = await window.customPrompt("กรุณาใส่รหัสผ่านสมาชิก:");
-                if (p === "Admin125/000") { window.isLoggedIn = true; window.updateLoginUI(); window.showAlert("เข้าสู่ระบบสำเร็จ"); }
+                if (p === "Admin125/000") { 
+                    window.isLoggedIn = true; 
+                    localStorage.setItem('makmai_session', 'true');
+                    window.updateLoginUI(); 
+                    window.showAlert("เข้าสู่ระบบสำเร็จ"); 
+                }
                 else if (p !== null) window.showAlert("❌ รหัสไม่ถูกต้อง");
             }
         };
@@ -1241,11 +1252,17 @@
                 const p = await window.customPrompt("รหัสผู้ดูแล:");
                 if (p === "Mtennis") {
                     window.adminMode = true;
+                    localStorage.setItem('makmai_admin', 'true');
                     const btn = document.getElementById('adminBtn'); btn.classList.replace('bg-red-50', 'bg-red-600'); btn.classList.replace('text-red-600', 'text-white'); btn.innerHTML = '🔓 ปลดล็อกแล้ว (เปิด)';
                     const fp = document.getElementById('scheduleDateInput')?._flatpickr; if (fp) { fp.set('minDate', null); fp.set('maxDate', null); }
                     window.showAlert("ปลดล็อกโหมดแอดมิน"); window.renderAll();
                 } else if (p !== null) window.showAlert("❌ รหัสไม่ถูกต้อง");
-            } else { window.adminMode = false; window.updateLoginUI(); window.showAlert("ปิดโหมดแอดมิน"); }
+            } else { 
+                window.adminMode = false; 
+                localStorage.removeItem('makmai_admin');
+                window.updateLoginUI(); 
+                window.showAlert("ปิดโหมดแอดมิน"); 
+            }
         };
 
         window.togglePastBookingMode = () => {
