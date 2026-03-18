@@ -1570,6 +1570,195 @@
             }
         };
 
+        // --- EXPORT, REPORT, PRINT, & BACKUP LOGIC ---
+        window.executeExcelExport = () => {
+            const sd = document.getElementById('exportStartDate').value, ed = document.getElementById('exportEndDate').value;
+            if (!sd || !ed) return window.showAlert("กรุณาเลือกช่วงวันที่"); if (sd > ed) return window.showAlert("วันที่เริ่มต้นต้องไม่มากกว่าวันที่สิ้นสุด");
+            const data = window.allBookingsCache.filter(b => b.date >= sd && b.date <= ed).sort((a,b)=>a.date!==b.date?a.date.localeCompare(b.date):a.time.localeCompare(b.time)).map((b, i) => ({ 'ลำดับ': i+1, 'วันที่จอง': b.date, 'เวลาเริ่ม': b.time, 'จำนวน ชม.': b.hours, 'สนาม': b.court, 'ชื่อผู้จอง': b.customerName, 'บ้านเลขที่': `125/${b.address}`, 'เจ้าของแปลง': b.ownerName||'-', 'เบอร์โทร': b.phoneNumber||'-', 'ยอดรวม (บาท)': b.totalPrice, 'สถานะ': b.slip?'ชำระแล้ว':'ค้างชำระ', 'อ้างอิง': window.generateRef(b) }));
+            if (!data.length) return window.showAlert("ไม่พบข้อมูลในช่วงที่เลือก");
+            XLSX.writeFile({SheetNames:["Bookings"], Sheets:{Bookings:XLSX.utils.json_to_sheet(data)}}, `Makmai_Tennis_Report_${sd}_to_${ed}.xlsx`);
+            window.closeModal(); window.showAlert("ดาวน์โหลด Excel สำเร็จ");
+        };
+
+        window.openReportModal = () => {
+             const list = window.allBookingsCache, today = window.getThailandDate(), curM = today.slice(0, 7), curY = today.slice(0, 4), paidList = list.filter(b => b.slip);
+             const mTotal = paidList.filter(b => b.date && b.date.startsWith(curM)).reduce((s, b) => s + (Number(b.totalPrice) || 0), 0);
+             const yTotal = paidList.filter(b => b.date && b.date.startsWith(curY)).reduce((s, b) => s + (Number(b.totalPrice) || 0), 0);
+             const uC = new Set(paidList.map(b => b.customerName)).size;
+             const mTH = new Array(12).fill(0), mLH = new Array(12).fill(0), mNLH = new Array(12).fill(0);
+             
+             paidList.forEach(b => { 
+                 if(b.date && b.date.startsWith(curY)) { 
+                     const m = parseInt(b.date.split('-')[1], 10) - 1;
+                     const h = Number(b.hours) || 0; 
+                     const lh = Number(b.lightHours) || 0; 
+                     mTH[m] += h; 
+                     mLH[m] += lh; 
+                     mNLH[m] += (h - lh); 
+                 } 
+             });
+             
+             document.getElementById('reportSummaryContent').innerHTML = `
+                <div class="text-center mb-6">
+                    <h2 class="text-2xl font-black text-slate-800">รายงานวิเคราะห์</h2>
+                    <p class="text-slate-400 text-xs font-bold uppercase mt-1">Makmai Tennis Dashboard</p>
+                    <p class="text-emerald-600 text-[10px] font-bold mt-2 bg-emerald-50 inline-block px-3 py-1 rounded-full">* คำนวณเฉพาะรายการที่ชำระเงินแล้ว</p>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-blue-50 p-6 rounded-2xl text-center">
+                        <div class="text-xs font-bold text-blue-400 uppercase">รายได้เดือนนี้</div>
+                        <div class="text-3xl font-black text-blue-700">฿${mTotal.toLocaleString()}</div>
+                    </div>
+                    <div class="bg-indigo-50 p-6 rounded-2xl text-center">
+                        <div class="text-xs font-bold text-indigo-400 uppercase">รายได้ปีนี้ (${curY})</div>
+                        <div class="text-3xl font-black text-indigo-700">฿${yTotal.toLocaleString()}</div>
+                    </div>
+                    <div class="bg-emerald-50 p-6 rounded-2xl text-center md:col-span-2">
+                        <div class="text-xs font-bold text-emerald-500 uppercase">ผู้ใช้บริการที่ไม่ซ้ำกัน</div>
+                        <div class="text-3xl font-black text-emerald-700">${uC.toLocaleString()} คน</div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-white p-4 rounded-2xl border">
+                        <h3 class="text-xs font-bold text-slate-400 text-center mb-2">รายได้รายเดือน</h3>
+                        <div class="relative w-full aspect-[4/3]"><canvas id="revenueChart"></canvas></div>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl border">
+                        <h3 class="text-xs font-bold text-slate-400 text-center mb-2">สัดส่วนเวลาใช้งาน (ไฟ/ไม่ไฟ)</h3>
+                        <div class="relative w-full aspect-[4/3]"><canvas id="usageChart"></canvas></div>
+                    </div>
+                </div>
+                <div class="pt-6 no-print grid grid-cols-2 gap-4">
+                    <button onclick="window.closeModal()" class="w-full bg-slate-200 py-3 rounded-xl font-bold">ปิด</button>
+                    <button onclick="window.print()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold shadow-lg">พิมพ์รายงาน / PDF</button>
+                </div>
+             `;
+             
+             document.title = `Report_MakmaiTennis_${today}`; 
+             document.getElementById('reportModal').classList.add('modal-active');
+             
+             setTimeout(() => { 
+                 const revCtx = document.getElementById('revenueChart');
+                 const usgCtx = document.getElementById('usageChart');
+                 if(!revCtx || !usgCtx) return;
+                 
+                 if(window.myRevChart) window.myRevChart.destroy();
+                 window.myRevChart = new Chart(revCtx, { 
+                     type: 'bar', 
+                     data: { 
+                         labels: thaiMonths, 
+                         datasets: [{ 
+                             label: 'รายได้ (บาท)', 
+                             data: mTH.map((_, i) => paidList.filter(b => b.date && b.date.startsWith(`${curY}-${String(i+1).padStart(2,'0')}`)).reduce((s, b) => s + (Number(b.totalPrice) || 0), 0)), 
+                             backgroundColor: '#3b82f6', 
+                             borderRadius: 4 
+                         }] 
+                     }, 
+                     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } 
+                 });
+                 
+                 if(window.myUsgChart) window.myUsgChart.destroy();
+                 window.myUsgChart = new Chart(usgCtx, { 
+                     type: 'bar', 
+                     data: { 
+                         labels: thaiMonths, 
+                         datasets: [
+                             { label: 'เปิดไฟ (ชม.)', data: mLH, backgroundColor: '#f97316', stack: 'S0' }, 
+                             { label: 'ไม่เปิดไฟ (ชม.)', data: mNLH, backgroundColor: '#10b981', stack: 'S0' }
+                         ] 
+                     }, 
+                     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { x: { stacked: true }, y: { stacked: true } } } 
+                 });
+             }, 300);
+        };
+
+        window.backupData = async () => {
+            try {
+                const a = document.createElement('a'), p = window.getThailandTimeParts();
+                a.href = URL.createObjectURL(new Blob([JSON.stringify(window.allBookingsCache, null, 2)], {type: "application/json"}));
+                a.download = `makmai_backup_online_${p.year}-${p.month}-${p.day}_${p.hour}-${p.minute}-${p.second}.json`;
+                document.body.appendChild(a); a.click(); document.body.removeChild(a); window.showAlert("ดาวน์โหลดไฟล์สำรองข้อมูลเรียบร้อย");
+            } catch(e) { window.showAlert("เกิดข้อผิดพลาดในการสำรองข้อมูล"); }
+        };
+
+        window.triggerRestore = () => document.getElementById('restoreInput').click();
+
+        window.importBackupFile = async (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            let importMode = '';
+            
+            if (confirm("การนำเข้าข้อมูล (Import):\n\nกด [ตกลง/OK] เพื่อ 'รวมข้อมูล' จากไฟล์นี้เข้ากับของเดิมที่มีอยู่ในระบบออนไลน์ (ข้อมูลเก่าไม่หาย)\n\nกด [ยกเลิก/Cancel] หากต้องการล้างของเดิมทิ้งแล้วเขียนทับใหม่")) {
+                importMode = 'merge';
+            } else {
+                if (confirm("⚠️ คำเตือน: คุณแน่ใจหรือไม่ว่าต้องการ 'ล้างข้อมูลปัจจุบันทั้งหมดบนออนไลน์' และแทนที่ด้วยไฟล์นี้?")) {
+                    importMode = 'replace';
+                } else {
+                    event.target.value = ''; 
+                    return;
+                }
+            }
+            
+            const r = new FileReader();
+            r.onload = async (e) => {
+                try {
+                    const data = JSON.parse(e.target.result); 
+                    if (!Array.isArray(data)) throw new Error("รูปแบบไม่ถูกต้อง");
+                    if (!collectionRef) return window.showAlert("❌ เชื่อมต่อฐานข้อมูลไม่สำเร็จ");
+                    
+                    if (importMode === 'replace') {
+                        window.showAlert("กำลังล้างข้อมูลเก่า กรุณารอสักครู่...");
+                        const snap = await getDocs(collectionRef); 
+                        for (const d of snap.docs) await deleteDoc(d.ref);
+                    }
+                    
+                    window.showAlert(`กำลังนำเข้าข้อมูล ${data.length} รายการ...`);
+                    for (const item of data) { 
+                        if(!item.id) item.id = Date.now().toString()+Math.random().toString(36).substr(2,4); 
+                        await setDoc(doc(collectionRef, String(item.id)), item); 
+                    }
+                    window.showAlert(`อัปโหลดสำเร็จ! กรุณารอสักครู่...`); 
+                    window.closeModal();
+                } catch (err) { 
+                    window.showAlert("เกิดข้อผิดพลาด: " + err.message); 
+                } finally { 
+                    event.target.value = ''; 
+                }
+            };
+            r.readAsText(file);
+        };
+
+        window.printWeeklySchedule = () => {
+            const today = window.getThailandDate(); let html = `<div class="p-6 bg-white w-full"><div class="text-center mb-4 border-b border-slate-200 pb-3"><h2 class="text-xl font-black text-slate-800">ตารางการจองสนาม (8 วัน)</h2><p class="text-xs text-slate-500">ข้อมูล ณ วันที่ ${window.formatThaiDate(today)} เวลา ${String(window.getThailandHour()).padStart(2,'0')}:${String(window.getThailandTimeParts().minute).padStart(2,'0')} น.</p></div><div class="flex flex-wrap justify-between items-start w-full">`;
+            for (let i=0; i<=7; i++) {
+                const d = new Date(window.parseLocalDate(today)); d.setDate(d.getDate() + i); const dS = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+                const bks = window.allBookingsCache.filter(b => b.date === dS);
+                html += `<div class="w-[49%] mb-4 break-inside-avoid border border-slate-300 rounded-lg overflow-hidden"><h3 class="text-[10px] font-bold bg-slate-100 p-1 text-center border-b border-slate-300">${window.formatThaiDate(dS)}</h3><table class="w-full text-left text-[8px] border-collapse bg-white"><thead><tr class="bg-slate-50 text-slate-500"><th class="border-b border-r p-1 text-center w-8">เวลา</th><th class="border-b border-r p-1 text-center w-1/2">สนาม 1</th><th class="border-b p-1 text-center w-1/2">สนาม 2</th></tr></thead><tbody>`;
+                for(let h=6; h<=20; h++) {
+                    const b1 = bks.find(b => b.court==="สนาม 1" && h>=parseInt(b.time.split(':')[0],10) && h<parseInt(b.time.split(':')[0],10)+Number(b.hours)), b2 = bks.find(b => b.court==="สนาม 2" && h>=parseInt(b.time.split(':')[0],10) && h<parseInt(b.time.split(':')[0],10)+Number(b.hours));
+                    const fS = (b) => !b ? '<div class="text-center text-slate-300">-</div>' : `<div class="flex flex-col pl-1"><span class="font-bold text-slate-800 truncate">${b.customerName}</span><span class="text-[7px] text-slate-500">125/${b.address} <span class="${b.slip?'text-blue-600':'text-orange-600'}">${b.slip?'(จ่าย)':'(ค้าง)'}</span></span></div>`;
+                    html += `<tr class="hover:bg-slate-50"><td class="border-b border-r p-1 text-center font-mono font-bold text-slate-400">${h}:00</td><td class="border-b border-r p-0.5 ${b1?(b1.slip?'bg-blue-50/50':'bg-orange-50/50'):''}">${fS(b1)}</td><td class="border-b p-0.5 ${b2?(b2.slip?'bg-blue-50/50':'bg-orange-50/50'):''}">${fS(b2)}</td></tr>`;
+                }
+                html += `</tbody></table></div>`;
+            }
+            document.getElementById('receiptContent').innerHTML = html + `</div></div>`;
+            document.title = `ตารางจองสนาม_${today}`;
+            document.querySelector('#receiptModal > div').className = 'bg-white max-w-5xl w-full mx-auto relative flex flex-col items-center p-0 md:p-6 shadow-2xl';
+            document.getElementById('receiptModal').classList.add('modal-active');
+        };
+
+        window.printReceipt = async (id) => {
+            const b = window.allBookingsCache.find(x => String(x.id) === String(id)); if (!b) return window.showAlert("ไม่พบข้อมูล");
+            const hrs = Number(b.hours||0), startH = parseInt((b.time||"00").split(':')[0],10); let std = 0, pk = 0;
+            for(let i=0; i<hrs; i++) { if (startH+i >= 18) pk++; else std++; } const total = std*100 + pk*150;
+            const rHtml = (type) => `<div class="border border-slate-800 p-4 relative bg-white" style="page-break-inside: avoid;"><div class="flex justify-between items-start mb-2"><div class="flex items-start gap-2"><img src="แมกไม้พื้นหลังดำ.jpg" class="w-10 h-10 object-contain" onerror="this.style.display='none'"><div><h2 class="text-base font-black text-slate-800 leading-tight">MAKMAI TENNIS CLUB</h2><p class="text-[9px] font-bold text-slate-500">ใบเสร็จรับเงิน / Receipt</p></div></div><div class="text-right"><div class="text-[9px] font-bold text-slate-500 mb-0.5">${type==='copy'?'สำเนา':'ต้นฉบับ'}</div><div class="font-mono text-xs font-bold text-slate-700">#${window.generateRef(b)}</div><div class="text-[9px] font-medium">วันที่: ${window.formatThaiDate(window.getThailandDate())}</div></div></div><div class="border-t border-slate-800 py-1.5 my-1"><div class="mb-1.5"><h3 class="text-[9px] font-bold text-slate-800 border-b border-slate-300 pb-0.5 mb-1">ผู้มาใช้บริการ / Customer</h3><div class="grid grid-cols-2 gap-1 text-[11px]"><div><span class="text-slate-500">ผู้จอง:</span> <span class="font-bold">${b.customerName}</span></div><div><span class="text-slate-500">บ้านเลขที่:</span> <span class="font-bold">125/${b.address}</span></div><div><span class="text-slate-500">เจ้าของแปลง:</span> <span class="font-bold">${b.ownerName||'-'}</span></div></div></div><div><h3 class="text-[9px] font-bold text-slate-800 border-b border-slate-300 pb-0.5 mb-1">รายละเอียด / Booking</h3><div class="grid grid-cols-3 gap-1 text-[11px]"><div><span class="text-slate-500">สนาม:</span> <span class="font-bold">${b.court}</span></div><div><span class="text-slate-500">เริ่ม:</span> <span class="font-bold">${b.time} น.</span></div><div><span class="text-slate-500">เวลา:</span> <span class="font-bold">${b.hours} ชม.</span></div></div></div></div><div class="space-y-0.5 border-t border-slate-800 pt-1.5">${std>0?`<div class="flex justify-between text-[10px]"><span class="text-slate-600">ค่าสนาม 06:00-18:00 (${std} ชม.)</span><span class="font-mono font-bold">฿${std*100}</span></div>`:''}${pk>0?`<div class="flex justify-between text-[10px]"><span class="text-slate-600">ค่าสนาม 18:00-21:00 (${pk} ชม.)</span><span class="font-mono font-bold">฿${pk*150}</span></div>`:''}<div class="flex justify-between mt-1 pt-1 border-t border-slate-300"><span class="text-xs font-black text-slate-800">ยอดรวม / Total</span><span class="text-lg font-black text-slate-900 font-mono">฿${total}</span></div></div><div class="flex justify-end pt-8 mt-2"><div class="text-center w-28"><div class="border-b border-slate-400 mb-1 h-6"></div><span class="text-[8px] font-bold text-slate-500">ผู้รับเงิน / Recipient</span></div></div></div>`;
+            document.getElementById('receiptContent').innerHTML = `<div class="flex flex-col gap-0">${rHtml('copy')}<div class="w-full py-4 relative flex items-center justify-center print:py-6"><div class="absolute w-full border-b-2 border-dashed border-slate-400 top-1/2"></div><span class="relative bg-white px-2 text-[8px] text-slate-500 font-mono z-10">✂ ตัดตามรอยประ</span></div>${rHtml('original')}</div>`;
+            document.title = `${b.ownerName?b.ownerName.split(' ')[0]:b.customerName}_${window.generateRef(b).replace(/\//g,'-')}`;
+            document.querySelector('#receiptModal > div').className = 'bg-white max-w-xl w-full relative flex flex-col items-center p-0 md:p-4 shadow-2xl';
+            document.getElementById('receiptModal').classList.add('modal-active');
+        };
+
         // --- RESTORED MISSING BOOKING FUNCTIONS ---
         window.deleteBooking = (id) => { const b = window.allBookingsCache.find(x => String(x.id) === String(id)); if (b && window.isBookingPast(b) && !window.adminMode) return window.showAlert("❌ ลบรายการในอดีตไม่ได้ (ต้องเปิดโหมดแอดมิน)"); window.itemToDeleteId = b?b.id:id; document.getElementById('confirmModal').classList.add('modal-active'); };
         document.getElementById('confirmDeleteBtn').onclick = async () => { if (window.itemToDeleteId === null) return; try { await deleteDoc(doc(collectionRef, String(window.itemToDeleteId))); window.showAlert("ลบรายการจองออนไลน์เรียบร้อย"); window.closeConfirmModal(); } catch (err) { window.showAlert("ลบไม่ได้: " + err.message); } };
