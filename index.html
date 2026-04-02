@@ -542,6 +542,7 @@
         window.isLoggedIn = localStorage.getItem('makmai_session') === 'true';
         window.adminMode = localStorage.getItem('makmai_admin') === 'true';
         window.geminiKey = localStorage.getItem('gemini_api_key') || '';
+        window.isDataLoaded = false;
         window.currentFilterWeek = '';
         window.allBookingsCache = [];
         window.highlightedBookingId = null;
@@ -1649,6 +1650,9 @@ If you absolutely cannot find the amount, return {"amount": 0}`;
                 banner.classList.add('hidden');
                 return;
             }
+            
+            // บังคับให้รอข้อมูลโหลดให้เสร็จก่อน ถึงจะประมวลผลต่อได้
+            if (!window.isDataLoaded) return;
 
             const p = window.getThailandTimeParts();
             const y = parseInt(p.year, 10);
@@ -1683,7 +1687,7 @@ If you absolutely cannot find the amount, return {"amount": 0}`;
                     banner.classList.remove('hidden');
                 } else {
                     banner.classList.add('hidden');
-                    localStorage.setItem(flagKey, 'true');
+                    // ไม่แอบเอาไปเซฟใส่ localStorage เมื่อเจอข้อมูลเป็น 0 เพราะอาจจะเป็นตอนจังหวะโหลดเน็ตช้า
                 }
             } else {
                 banner.classList.add('hidden');
@@ -1692,6 +1696,7 @@ If you absolutely cannot find the amount, return {"amount": 0}`;
 
         window.checkAutoMaintenance = function() {
             if (!window.adminMode) return; 
+            if (!window.isDataLoaded) return;
 
             const p = window.getThailandTimeParts();
             const y = parseInt(p.year, 10);
@@ -1722,8 +1727,6 @@ If you absolutely cannot find the amount, return {"amount": 0}`;
                     document.getElementById('maintenanceTitle').innerText = `ถึงรอบสำรองข้อมูล ${window.pendingMaintenance.title}`;
                     document.getElementById('maintenanceCount').innerText = `${oldRecords.length} รายการ`;
                     document.getElementById('autoMaintenanceModal').classList.add('modal-active');
-                } else {
-                    localStorage.setItem(flagKey, 'true');
                 }
             }
         };
@@ -2409,6 +2412,7 @@ If you absolutely cannot find the amount, return {"amount": 0}`;
                 app = initializeApp(config); auth = getAuth(app); db = getFirestore(app); collectionRef = collection(db, 'bookings');
                 await signInAnonymously(auth);
                 onSnapshot(collectionRef, (snap) => {
+                    window.isDataLoaded = true;
                     window.allBookingsCache = []; snap.forEach(d => window.allBookingsCache.push(d.data()));
                     window.autoDeletePastUnpaid();
                     window.allBookingsCache.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
