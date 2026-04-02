@@ -1644,11 +1644,54 @@ If you absolutely cannot find the amount, return {"amount": 0}`;
             const banner = document.getElementById('maintenanceWarningBanner');
             if (!banner) return;
             
-            // ซ่อนแบนเนอร์ทันที ถ้ายังไม่ได้เปิดโหมด Admin
-            if (!window.adminMode) {
+            // ซ่อนแบนเนอร์ทันที ถ้ายังไม่ได้เข้าสู่ระบบ (ผู้ใช้ทั่วไปจะไม่เห็น)
+            if (!window.isLoggedIn) {
                 banner.classList.add('hidden');
                 return;
             }
+
+            const p = window.getThailandTimeParts();
+            const y = parseInt(p.year, 10);
+            const m = parseInt(p.month, 10);
+            
+            let currentQ = Math.ceil(m / 3);
+            let prevQ = currentQ - 1;
+            let prevYear = y;
+            if (prevQ === 0) {
+                prevQ = 4;
+                prevYear = y - 1;
+            }
+
+            const flagKey = `makmai_maintenance_done_${prevYear}_Q${prevQ}`;
+            
+            if (!localStorage.getItem(flagKey)) {
+                const cutoffMonth = (currentQ - 1) * 3 + 1;
+                const cutoffDateStr = `${y}-${String(cutoffMonth).padStart(2, '0')}-01`;
+                
+                const oldRecords = window.allBookingsCache.filter(b => b.date < cutoffDateStr);
+                
+                if (oldRecords.length > 0) {
+                    window.pendingMaintenance = {
+                        flagKey: flagKey,
+                        title: `ไตรมาส ${prevQ}_${prevYear}`,
+                        records: oldRecords
+                    };
+                    document.getElementById('maintenanceTitle').innerText = `ถึงรอบสำรองข้อมูล ${window.pendingMaintenance.title}`;
+                    document.getElementById('maintenanceCount').innerText = `${oldRecords.length} รายการ`;
+                    
+                    // แสดงแบนเนอร์ทันทีถ้ามีการเข้าระบบแล้ว (Admin125/000)
+                    banner.classList.remove('hidden');
+                } else {
+                    banner.classList.add('hidden');
+                    localStorage.setItem(flagKey, 'true');
+                }
+            } else {
+                banner.classList.add('hidden');
+            }
+        };
+
+        window.checkAutoMaintenance = function() {
+            if (!window.adminMode) return; 
 
             const p = window.getThailandTimeParts();
             const y = parseInt(p.year, 10);
