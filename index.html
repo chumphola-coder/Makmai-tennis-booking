@@ -953,15 +953,6 @@
 125/450,คุณณัฐฐณัณ พิมทะโนทัย
 125/451,คุณคุณธรรม  ประสิทธิ์รัฐสินธุ์`;
 
-        rawOwnerCSV.trim().split('\n').forEach(line => {
-            const parts = line.includes('\t') ? line.split('\t') : line.split(',');
-            if (parts.length >= 2) {
-                const addr = parts[0].trim().replace(/^125\//, '').trim();
-                const name = parts[1].trim();
-                if (addr) window.houseOwnerDB[addr] = name;
-            }
-        });
-
         window.getThailandTimeParts = function() {
             const p = new Intl.DateTimeFormat('en-GB', {timeZone: 'Asia/Bangkok', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false}).formatToParts(new Date());
             const r = {}; p.forEach(v => r[v.type] = v.value); if (r.hour === "24") r.hour = "00"; return r;
@@ -1055,18 +1046,12 @@
 
         window.autoFillFromAddress = (val) => {
             if (!val) return; const addr = window.normalizeAddress(val);
-            document.getElementById('inputAddress').value = addr; 
-            
+            document.getElementById('inputAddress').value = addr; window.fillOwnerFields(window.houseOwnerDB[addr] || '');
             let match = window.customerProfiles.find(p => window.normalizeAddress(p.address) === addr);
             if (!match) {
                 const hist = window.allBookingsCache.filter(b => window.normalizeAddress(b.address) === addr).sort((a,b)=> (b.timestamp||0)-(a.timestamp||0));
                 if (hist.length > 0) match = hist[0];
             }
-            
-            let ownerName = window.houseOwnerDB[addr];
-            if (!ownerName && match && match.ownerName) ownerName = match.ownerName;
-            window.fillOwnerFields(ownerName || '');
-
             if (match) { document.getElementById('inputName').value = match.customerName || ''; document.getElementById('inputPhone').value = match.phoneNumber || ''; } 
             else { document.getElementById('inputName').value = ''; document.getElementById('inputPhone').value = ''; }
         };
