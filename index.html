@@ -132,7 +132,7 @@
                     </button>
                     <button onclick="window.toggleAdminMode()" id="adminBtn" class="px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-xl text-sm font-bold hover:bg-red-100 transition-all flex items-center gap-2 ml-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                        🔒 ปลดล็อกผู้ดูแล
+                        🔒 เข้าสู่ระบบแอดมิน
                     </button>
                 </div>
                 
@@ -359,7 +359,7 @@
                 <div>
                     <label class="text-xs font-bold text-slate-500 uppercase">Gemini API Key</label>
                     <input type="password" id="geminiKeyInput" placeholder="กรอก API Key (ไม่บังคับ)..." class="w-full border border-slate-200 rounded-xl px-4 py-3 mt-1 focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50 shadow-inner" onkeydown="if(event.key === 'Enter') window.processLogin()">
-                    <p class="text-[10px] text-emerald-600 font-bold mt-2">✨ ระบบจะจำคีย์ไว้ในเบราว์เซอร์ให้อัตโนมัติ (แสดงเป็น * เพื่อความปลอดภัย)</p>
+                    <p id="geminiKeyHint" class="text-[10px] text-emerald-600 font-bold mt-2">✨ ระบบจะจำคีย์ไว้ในเบราว์เซอร์ให้อัตโนมัติ (แสดงเป็น * เพื่อความปลอดภัย)</p>
                 </div>
                 <div class="flex gap-3 pt-4">
                     <button onclick="window.closeLoginModal()" class="flex-1 py-3 bg-slate-100 hover:bg-slate-200 transition-colors text-slate-600 rounded-xl font-bold">ยกเลิก</button>
@@ -559,7 +559,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, deleteDoc, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, deleteDoc, getDocs, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const config = {
             apiKey: "AIzaSyA4ACuJR2m49qx-I56bkO-VIiyMHbnXXSM",
@@ -1401,6 +1401,16 @@ If you absolutely cannot find the amount, return {"amount": 0}`;
             document.getElementById('loginModal').classList.add('modal-active');
             document.getElementById('geminiKeyInput').value = window.geminiKey || '';
             document.getElementById('loginPass').value = '';
+            const hint = document.getElementById('geminiKeyHint');
+            if (hint) {
+                if (window.geminiKey) {
+                    hint.className = 'text-[10px] text-emerald-600 font-bold mt-2';
+                    hint.innerText = '✅ มี API Key บันทึกในเบราว์เซอร์นี้แล้ว (แสดงเป็น * เพื่อความปลอดภัย)';
+                } else {
+                    hint.className = 'text-[10px] text-amber-600 font-bold mt-2';
+                    hint.innerText = '⚠️ ยังไม่มี API Key — กรอกครั้งเดียวระบบจะจำให้อัตโนมัติ (ไม่บังคับ)';
+                }
+            }
             setTimeout(() => document.getElementById('loginPass').focus(), 100);
         };
         
@@ -1408,11 +1418,17 @@ If you absolutely cannot find the amount, return {"amount": 0}`;
             document.getElementById('loginModal').classList.remove('modal-active');
         };
 
-        window.processLogin = () => {
+        window.sha256 = async (message) => {
+            const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(message));
+            return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+        };
+
+        window.processLogin = async () => {
             const pass = document.getElementById('loginPass').value;
             const key = document.getElementById('geminiKeyInput').value.trim();
+            const hash = await window.sha256(pass);
 
-            if (pass === "Admin125/000") {
+            if (hash === "f355f8c8214e8639a3d0a81246ca85f40410e50bd0478b07422554abd39ee013") {
                 window.isLoggedIn = true;
                 window.geminiKey = key;
                 safeStorage.setItem('makmai_session', 'true');
@@ -1451,7 +1467,7 @@ If you absolutely cannot find the amount, return {"amount": 0}`;
                 if (window.adminMode) {
                     ad.className = 'px-4 py-2 bg-red-600 text-white border border-red-200 rounded-xl text-sm font-bold hover:bg-red-700 transition-all flex items-center gap-2 ml-2'; ad.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path></svg> 🔓 ปลดล็อกแล้ว (เปิด)';
                 } else {
-                    ad.className = 'px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-xl text-sm font-bold hover:bg-red-100 transition-all flex items-center gap-2 ml-2'; ad.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg> 🔒 ปลดล็อกผู้ดูแล';
+                    ad.className = 'px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-xl text-sm font-bold hover:bg-red-100 transition-all flex items-center gap-2 ml-2'; ad.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg> 🔒 เข้าสู่ระบบแอดมิน';
                 }
             } else {
                 b.innerHTML = '🔐 เข้าสู่ระบบ (สำหรับจอง)'; b.classList.replace('bg-red-600', 'bg-slate-800'); b.classList.replace('hover:bg-red-700', 'hover:bg-slate-700');
@@ -1461,7 +1477,7 @@ If you absolutely cannot find the amount, return {"amount": 0}`;
                 if (btnCurrentWeek) btnCurrentWeek.classList.add('hidden');
                 if (slipNote) slipNote.classList.add('hidden');
                 
-                const ad = document.getElementById('adminBtn'); ad.className = 'px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-xl text-sm font-bold hover:bg-red-100 transition-all flex items-center gap-2 ml-2'; ad.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg> 🔒 ปลดล็อกผู้ดูแล';
+                const ad = document.getElementById('adminBtn'); ad.className = 'px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-xl text-sm font-bold hover:bg-red-100 transition-all flex items-center gap-2 ml-2'; ad.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg> 🔒 เข้าสู่ระบบแอดมิน';
                 if (fp) { fp.set('minDate', minS); fp.set('maxDate', maxS); }
                 const curW = window.getWeekString(today), nextW = window.getWeekString(maxS);
                 if (window.currentFilterWeek < curW || window.currentFilterWeek > nextW) window.goToCurrentWeek();
@@ -1473,13 +1489,13 @@ If you absolutely cannot find the amount, return {"amount": 0}`;
             if (!window.isLoggedIn) return window.showAlert("กรุณาเข้าสู่ระบบก่อน");
             if (!window.adminMode) {
                 const p = await window.customPrompt("รหัสผู้ดูแล:");
-                if (p === "Mtennis") {
+                if (p !== null && await window.sha256(p) === "8af50beb10a75d2885c7ec07cac765ab22e8c01122540c798b27af699c729888") {
                     window.adminMode = true;
                     safeStorage.setItem('makmai_admin', 'true');
                     const btn = document.getElementById('adminBtn'); btn.className = 'px-4 py-2 bg-red-600 text-white border border-red-200 rounded-xl text-sm font-bold hover:bg-red-700 transition-all flex items-center gap-2 ml-2'; btn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path></svg> 🔓 ปลดล็อกแล้ว (เปิด)';
                     const fp = document.getElementById('scheduleDateInput')?._flatpickr; if (fp) { fp.set('minDate', null); fp.set('maxDate', null); }
                     window.showAlert("ปลดล็อกโหมดแอดมิน"); window.renderAll();
-                    window.checkAutoMaintenance();
+                    setTimeout(() => window.checkAutoBackup(), 2000);
                 } else if (p !== null) window.showAlert("❌ รหัสไม่ถูกต้อง");
             } else { 
                 window.adminMode = false; 
@@ -2071,27 +2087,19 @@ If you absolutely cannot find the amount, return {"amount": 0}`;
         };
 
         window.updateMaintenanceWarning = function() {
-            const p = window.getThailandTimeParts();
-            const y = parseInt(p.year, 10);
-            const m = parseInt(p.month, 10);
-            
-            let currentQ = Math.ceil(m / 3);
-            let prevQ = currentQ - 1;
-            let prevYear = y;
-            if (prevQ === 0) { prevQ = 4; prevYear = y - 1; }
-
-            const flagKey = `makmai_maintenance_done_${prevYear}_Q${prevQ}`;
             const banner = document.getElementById('maintenanceWarningBanner');
-            if (!banner) return;
-            
-            if (!safeStorage.getItem(flagKey)) {
-                const cutoffMonth = (currentQ - 1) * 3 + 1;
-                const cutoffDateStr = `${y}-${String(cutoffMonth).padStart(2, '0')}-01`;
-                const oldRecords = window.allBookingsCache.filter(b => b.date < cutoffDateStr && !b.isCustomerProfile);
-                
-                if (oldRecords.length > 0) banner.classList.remove('hidden');
-                else banner.classList.add('hidden');
-            } else { banner.classList.add('hidden'); }
+            if (banner) banner.classList.add('hidden');
+        };
+
+        window.checkAutoBackup = function() {
+            if (!window.adminMode) return;
+            const NINETY_DAYS = 90 * 24 * 60 * 60 * 1000;
+            const lastBackup = safeStorage.getItem('makmai_last_auto_backup');
+            if (!lastBackup || (Date.now() - parseInt(lastBackup)) > NINETY_DAYS) {
+                window.backupData();
+                safeStorage.setItem('makmai_last_auto_backup', Date.now().toString());
+                window.showAlert("💾 สำรองข้อมูลอัตโนมัติแล้ว (ทุก 90 วัน)", "success");
+            }
         };
 
         window.checkAutoMaintenance = function() {
@@ -2322,6 +2330,8 @@ If you absolutely cannot find the amount, return {"amount": 0}`;
             } catch (err) { console.error(err); window.showAlert("เกิดข้อผิดพลาด: " + err.message, "danger"); } finally { btn.disabled = false; btn.innerHTML = 'บันทึกการแก้ไข'; }
         };
 
+        document.getElementById('restoreInput').onchange = window.importBackupFile;
+
         document.getElementById('updateSlipInput').onchange = async (e) => {
             const files = e.target.files; if (files.length === 0 || !window.currentUploadId) return;
             window.closeUploadPrompt(); 
@@ -2397,7 +2407,8 @@ If you absolutely cannot find the amount, return {"amount": 0}`;
             try {
                 app = initializeApp(config); auth = getAuth(app); db = getFirestore(app); collectionRef = collection(db, 'bookings');
                 await signInAnonymously(auth);
-                onSnapshot(collectionRef, (snap) => {
+                const cutoffDate = (() => { const d = new Date(); d.setDate(d.getDate() - 400); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; })();
+                onSnapshot(query(collectionRef, where('date', '>=', cutoffDate)), (snap) => {
                     window.allBookingsCache = [];
                     window.customerProfiles = []; 
                     snap.forEach(d => {
